@@ -27,11 +27,13 @@ export const API_BASE_URL = __DEV__
 ```
 
 **Importante:**
+
 - **Android Emulador**: Usa `http://10.0.2.2:3000/api`
 - **iOS Simulador**: Usa `http://localhost:3000/api`
 - **Dispositivo Físico**: Usa la IP de tu máquina (ej: `http://192.168.1.100:3000/api`)
 
 Para encontrar tu IP:
+
 - Windows: `ipconfig` en CMD
 - Mac/Linux: `ifconfig` o `ip addr`
 
@@ -55,7 +57,7 @@ La aplicación tiene hot reload activado por defecto. Los cambios se reflejan au
 
 ### Estructura de Carpetas
 
-```
+``` bash
 mobile/
 ├── screens/          # Pantallas de la app
 │   ├── Auth/         # Login, Registro, Recuperar contraseña
@@ -76,6 +78,7 @@ mobile/
 **Causa**: La app no puede conectarse al backend.
 
 **Solución**:
+
 1. Verifica que el backend esté corriendo
 2. Verifica la URL en `config/api.js`
 3. Para dispositivo físico, asegúrate de usar la IP correcta
@@ -128,4 +131,3 @@ Después de inicializar el backend con `npm run init-admin`:
 2. Asegúrate de que el backend esté corriendo
 3. Inicia la aplicación con `npm start`
 4. Prueba el login con las credenciales de administrador
-

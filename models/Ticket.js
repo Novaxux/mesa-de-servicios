@@ -1,9 +1,9 @@
-const { query } = require('../config/database');
-const moment = require('moment');
+const { query } = require("../config/database");
+const moment = require("moment");
 
 class Ticket {
   static generateTicketNumber() {
-    const prefix = 'TKT';
+    const prefix = "TKT";
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
     return `${prefix}-${timestamp}-${random}`;
@@ -19,26 +19,31 @@ class Ticket {
       incident_type_id,
       created_by,
       assigned_to,
-      department
+      department,
     } = ticketData;
 
     // Obtener tiempos de SLA para la prioridad
-    const [slaConfig] = await query(
-      'SELECT response_time_hours, resolution_time_hours FROM sla_config WHERE priority_id = ?',
+    const slaConfigResults = await query(
+      "SELECT response_time_hours, resolution_time_hours FROM sla_config WHERE priority_id = ?",
       [priority_id]
     );
+    const slaConfig = slaConfigResults.length > 0 ? slaConfigResults[0] : null;
 
     const responseTimeHours = slaConfig?.response_time_hours || 8;
     const resolutionTimeHours = slaConfig?.resolution_time_hours || 48;
 
-    const slaResponseDeadline = moment().add(responseTimeHours, 'hours').toDate();
-    const slaResolutionDeadline = moment().add(resolutionTimeHours, 'hours').toDate();
+    const slaResponseDeadline = moment()
+      .add(responseTimeHours, "hours")
+      .toDate();
+    const slaResolutionDeadline = moment()
+      .add(resolutionTimeHours, "hours")
+      .toDate();
 
     const sql = `INSERT INTO tickets 
                  (ticket_number, title, description, priority_id, category_id, incident_type_id, 
                   created_by, assigned_to, department, sla_response_deadline, sla_resolution_deadline) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    
+
     const result = await query(sql, [
       ticketNumber,
       title,
@@ -50,11 +55,17 @@ class Ticket {
       assigned_to || null,
       department || null,
       slaResponseDeadline,
-      slaResolutionDeadline
+      slaResolutionDeadline,
     ]);
 
     // Registrar en historial
-    await this.addHistory(result.insertId, 'created', null, 'Ticket creado', created_by);
+    await this.addHistory(
+      result.insertId,
+      "created",
+      null,
+      "Ticket creado",
+      created_by
+    );
 
     return await this.findById(result.insertId);
   }
@@ -92,53 +103,57 @@ class Ticket {
     const params = [];
 
     if (filters.status) {
-      sql += ' AND t.status = ?';
+      sql += " AND t.status = ?";
       params.push(filters.status);
     }
 
     if (filters.priority_id) {
-      sql += ' AND t.priority_id = ?';
+      sql += " AND t.priority_id = ?";
       params.push(filters.priority_id);
     }
 
     if (filters.category_id) {
-      sql += ' AND t.category_id = ?';
+      sql += " AND t.category_id = ?";
       params.push(filters.category_id);
     }
 
     if (filters.created_by) {
-      sql += ' AND t.created_by = ?';
+      sql += " AND t.created_by = ?";
       params.push(filters.created_by);
     }
 
     if (filters.assigned_to) {
-      sql += ' AND t.assigned_to = ?';
+      sql += " AND t.assigned_to = ?";
       params.push(filters.assigned_to);
     }
 
     if (filters.department) {
-      sql += ' AND t.department = ?';
+      sql += " AND t.department = ?";
       params.push(filters.department);
     }
 
     if (filters.date_from) {
-      sql += ' AND DATE(t.created_at) >= ?';
+      sql += " AND DATE(t.created_at) >= ?";
       params.push(filters.date_from);
     }
 
     if (filters.date_to) {
-      sql += ' AND DATE(t.created_at) <= ?';
+      sql += " AND DATE(t.created_at) <= ?";
       params.push(filters.date_to);
     }
 
-    sql += ' ORDER BY t.created_at DESC';
-    
+    sql += " ORDER BY t.created_at DESC";
+
     if (filters.limit) {
-      sql += ' LIMIT ?';
-      params.push(parseInt(filters.limit));
-      if (filters.offset) {
-        sql += ' OFFSET ?';
-        params.push(parseInt(filters.offset));
+      const limitValue = parseInt(filters.limit, 10);
+      const offsetValue = filters.offset ? parseInt(filters.offset, 10) : 0;
+
+      if (!isNaN(limitValue) && limitValue > 0 && limitValue <= 1000) {
+        // Interpolar LIMIT y OFFSET directamente para evitar error de MySQL
+        sql += ` LIMIT ${limitValue}`;
+        if (!isNaN(offsetValue) && offsetValue >= 0) {
+          sql += ` OFFSET ${offsetValue}`;
+        }
       }
     }
 
@@ -150,50 +165,56 @@ class Ticket {
     const params = [];
 
     if (ticketData.status) {
-      fields.push('status = ?');
+      fields.push("status = ?");
       params.push(ticketData.status);
-      
+
       // Actualizar tiempos según el estado
-      if (ticketData.status === 'in_progress' && !ticketData.response_time) {
-        fields.push('response_time = NOW()');
+      if (ticketData.status === "in_progress" && !ticketData.response_time) {
+        fields.push("response_time = NOW()");
       }
-      if (ticketData.status === 'resolved' && !ticketData.resolution_time) {
-        fields.push('resolution_time = NOW()');
+      if (ticketData.status === "resolved" && !ticketData.resolution_time) {
+        fields.push("resolution_time = NOW()");
       }
-      if (ticketData.status === 'closed' && !ticketData.closed_at) {
-        fields.push('closed_at = NOW()');
+      if (ticketData.status === "closed" && !ticketData.closed_at) {
+        fields.push("closed_at = NOW()");
       }
     }
 
     if (ticketData.priority_id) {
-      fields.push('priority_id = ?');
+      fields.push("priority_id = ?");
       params.push(ticketData.priority_id);
     }
 
     if (ticketData.assigned_to !== undefined) {
-      fields.push('assigned_to = ?');
+      fields.push("assigned_to = ?");
       params.push(ticketData.assigned_to || null);
     }
 
     if (ticketData.title) {
-      fields.push('title = ?');
+      fields.push("title = ?");
       params.push(ticketData.title);
     }
 
     if (ticketData.description) {
-      fields.push('description = ?');
+      fields.push("description = ?");
       params.push(ticketData.description);
     }
 
     if (fields.length === 0) return await this.findById(id);
 
     params.push(id);
-    const sql = `UPDATE tickets SET ${fields.join(', ')} WHERE id = ?`;
+    const sql = `UPDATE tickets SET ${fields.join(", ")} WHERE id = ?`;
     await query(sql, params);
 
     // Registrar cambios en historial
     if (ticketData.status) {
-      await this.addHistory(id, 'status_changed', null, ticketData.status, changedBy);
+      await this.addHistory(
+        id,
+        "status_changed",
+        null,
+        ticketData.status,
+        changedBy
+      );
     }
 
     return await this.findById(id);
@@ -227,12 +248,12 @@ class Ticket {
     const params = [];
 
     if (filters.date_from) {
-      sql += ' AND DATE(created_at) >= ?';
+      sql += " AND DATE(created_at) >= ?";
       params.push(filters.date_from);
     }
 
     if (filters.date_to) {
-      sql += ' AND DATE(created_at) <= ?';
+      sql += " AND DATE(created_at) <= ?";
       params.push(filters.date_to);
     }
 
@@ -242,4 +263,3 @@ class Ticket {
 }
 
 module.exports = Ticket;
-
