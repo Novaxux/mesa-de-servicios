@@ -21,6 +21,7 @@ import TicketDetailScreen from './screens/Tickets/TicketDetailScreen';
 
 // Knowledge Base
 import KnowledgeBaseScreen from './screens/KnowledgeBase/KnowledgeBaseScreen';
+import ArticleDetailScreen from './screens/KnowledgeBase/ArticleDetailScreen';
 
 // Profile
 import ProfileScreen from './screens/Profile/ProfileScreen';
@@ -104,6 +105,11 @@ const MainStack = () => (
       options={{ title: 'Detalle del Ticket' }}
     />
     <Stack.Screen
+      name="ArticleDetail"
+      component={ArticleDetailScreen}
+      options={{ title: 'Artículo' }}
+    />
+    <Stack.Screen
       name="EditProfile"
       component={EditProfileScreen}
       options={{ title: 'Editar Perfil' }}
@@ -143,4 +149,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
