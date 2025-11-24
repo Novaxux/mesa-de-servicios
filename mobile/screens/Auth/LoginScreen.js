@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -21,7 +20,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
+      alert('Por favor completa todos los campos');
       return;
     }
 
@@ -29,10 +28,10 @@ const LoginScreen = ({ navigation }) => {
     try {
       const result = await login(email, password);
       if (!result.success) {
-        Alert.alert('Error', result.message || 'Error al iniciar sesión');
+        alert(result.message || 'Error al iniciar sesión');
       }
     } catch (error) {
-      Alert.alert('Error', 'Error de conexión. Verifica tu conexión a internet.');
+      alert('Error de conexión. Verifica tu conexión a internet.');
     } finally {
       setLoading(false);
     }
@@ -79,7 +78,9 @@ const LoginScreen = ({ navigation }) => {
             style={styles.forgotPassword}
             onPress={() => navigation.navigate('ForgotPassword')}
           >
-            <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
+            <Text style={styles.forgotPasswordText}>
+              ¿Olvidaste tu contraseña?
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -190,4 +191,3 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
-

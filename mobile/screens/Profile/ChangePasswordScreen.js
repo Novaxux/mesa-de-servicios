@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
@@ -21,18 +20,22 @@ const ChangePasswordScreen = ({ navigation }) => {
   });
 
   const handleChangePassword = async () => {
-    if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
+    if (
+      !formData.currentPassword ||
+      !formData.newPassword ||
+      !formData.confirmPassword
+    ) {
+      alert('Por favor completa todos los campos');
       return;
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      alert('Las contraseñas no coinciden');
       return;
     }
 
     if (formData.newPassword.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      alert('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
@@ -42,28 +45,27 @@ const ChangePasswordScreen = ({ navigation }) => {
         formData.currentPassword,
         formData.newPassword
       );
-      
+
       if (result.success) {
-        Alert.alert('Éxito', 'Contraseña actualizada exitosamente', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+        alert('Contraseña actualizada exitosamente');
         setFormData({
           currentPassword: '',
           newPassword: '',
           confirmPassword: '',
         });
+        navigation.goBack();
       } else {
-        Alert.alert('Error', result.message || 'Error al cambiar contraseña');
+        alert(result.message || 'Error al cambiar contraseña');
       }
     } catch (error) {
-      Alert.alert('Error', 'Error de conexión. Verifica tu conexión a internet.');
+      alert('Error de conexión. Verifica tu conexión a internet.');
     } finally {
       setLoading(false);
     }
   };
 
   const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -164,4 +166,3 @@ const styles = StyleSheet.create({
 });
 
 export default ChangePasswordScreen;
-

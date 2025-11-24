@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
   ActivityIndicator,
   Picker,
 } from 'react-native';
@@ -38,7 +37,7 @@ const CreateTicketScreen = ({ navigation }) => {
       if (response.success) {
         setCategories(response.data.categories || []);
         if (response.data.categories?.length > 0) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             category_id: response.data.categories[0].id,
           }));
@@ -56,37 +55,52 @@ const CreateTicketScreen = ({ navigation }) => {
         copyToCacheDirectory: true,
       });
 
-      if (!result.canceled && result.assets) {
-        setAttachments(prev => [...prev, ...result.assets]);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setAttachments((prev) => [...prev, ...result.assets]);
+      } else if (!result.canceled && result.uri) {
+        // Fallback para versiones antiguas de expo-document-picker
+        setAttachments((prev) => [...prev, result]);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar el archivo');
+      console.error('Error picking document:', error);
+      alert('No se pudo seleccionar el archivo');
     }
   };
 
   const pickImage = async () => {
     try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Se necesita permiso para acceder a las imágenes');
+        return;
+      }
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 0.8,
       });
 
-      if (!result.canceled && result.assets) {
-        setAttachments(prev => [...prev, ...result.assets]);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setAttachments((prev) => [...prev, ...result.assets]);
+      } else if (!result.canceled && result.uri) {
+        // Fallback para versiones antiguas
+        setAttachments((prev) => [...prev, result]);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo seleccionar la imagen');
+      console.error('Error picking image:', error);
+      alert('No se pudo seleccionar la imagen');
     }
   };
 
   const removeAttachment = (index) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.description || !formData.category_id) {
-      Alert.alert('Error', 'Por favor completa todos los campos obligatorios');
+      alert('Por favor completa todos los campos obligatorios');
       return;
     }
 
@@ -94,39 +108,56 @@ const CreateTicketScreen = ({ navigation }) => {
     try {
       // Primero crear el ticket
       const result = await ticketService.create(formData);
-      
+
       if (result.success && result.data?.ticket?.id) {
         const ticketId = result.data.ticket.id;
-        
+        let uploadErrors = [];
+
         // Subir archivos adjuntos si hay
         if (attachments.length > 0) {
           for (const attachment of attachments) {
             try {
-              const fileExtension = attachment.uri.split('.').pop();
-              const fileType = attachment.type || attachment.mimeType || 'image/jpeg';
-              const fileName = attachment.name || attachment.fileName || `attachment_${Date.now()}.${fileExtension}`;
-              
+              const uri = attachment.uri;
+              const fileExtension = uri ? uri.split('.').pop() : 'jpg';
+              const fileType =
+                attachment.type || attachment.mimeType || 'image/jpeg';
+              const fileName =
+                attachment.name ||
+                attachment.fileName ||
+                `attachment_${Date.now()}.${fileExtension}`;
+
               await ticketService.uploadAttachment(ticketId, {
-                uri: attachment.uri,
+                uri,
                 type: fileType,
                 name: fileName,
               });
             } catch (error) {
               console.error('Error uploading attachment:', error);
+              uploadErrors.push(attachment.name || 'archivo');
               // Continuar con los demás archivos aunque uno falle
             }
           }
         }
 
-        Alert.alert('Éxito', 'Ticket creado exitosamente', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+        let message = 'Ticket creado exitosamente';
+        if (uploadErrors.length > 0) {
+          message +=
+            '\n\nAlgunos archivos no se pudieron subir: ' +
+            uploadErrors.join(', ');
+        }
+
+        alert(message);
+        navigation.goBack();
       } else {
-        Alert.alert('Error', result.message || 'Error al crear ticket');
+        alert(result.message || 'Error al crear ticket');
       }
     } catch (error) {
       console.error('Error creating ticket:', error);
-      Alert.alert('Error', error.message || 'Error de conexión. Verifica tu conexión a internet.');
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        'Error de conexión. Verifica tu conexión a internet.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -141,7 +172,9 @@ const CreateTicketScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Describe brevemente el problema"
             value={formData.title}
-            onChangeText={(value) => setFormData(prev => ({ ...prev, title: value }))}
+            onChangeText={(value) =>
+              setFormData((prev) => ({ ...prev, title: value }))
+            }
           />
         </View>
 
@@ -151,7 +184,9 @@ const CreateTicketScreen = ({ navigation }) => {
             style={[styles.input, styles.textArea]}
             placeholder="Describe el problema en detalle..."
             value={formData.description}
-            onChangeText={(value) => setFormData(prev => ({ ...prev, description: value }))}
+            onChangeText={(value) =>
+              setFormData((prev) => ({ ...prev, description: value }))
+            }
             multiline
             numberOfLines={6}
             textAlignVertical="top"
@@ -163,7 +198,9 @@ const CreateTicketScreen = ({ navigation }) => {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={formData.category_id}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, category_id: value }))
+              }
               style={styles.picker}
             >
               {categories.map((cat) => (
@@ -178,7 +215,9 @@ const CreateTicketScreen = ({ navigation }) => {
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={formData.priority_id}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, priority_id: value }))}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, priority_id: value }))
+              }
               style={styles.picker}
             >
               <Picker.Item label="Baja" value={1} />
@@ -195,7 +234,9 @@ const CreateTicketScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="IT"
             value={formData.department}
-            onChangeText={(value) => setFormData(prev => ({ ...prev, department: value }))}
+            onChangeText={(value) =>
+              setFormData((prev) => ({ ...prev, department: value }))
+            }
           />
         </View>
 
@@ -349,4 +390,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreateTicketScreen;
-

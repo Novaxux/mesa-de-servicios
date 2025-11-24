@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -27,7 +26,12 @@ const RegisterScreen = ({ navigation }) => {
   const { register } = useAuth();
 
   const handleRegister = async () => {
-    if (!formData.email || !formData.password || !formData.first_name || !formData.last_name) {
+    if (
+      !formData.email ||
+      !formData.password ||
+      !formData.first_name ||
+      !formData.last_name
+    ) {
       Alert.alert('Error', 'Por favor completa los campos obligatorios');
       return;
     }
@@ -46,23 +50,25 @@ const RegisterScreen = ({ navigation }) => {
     try {
       const { confirmPassword, ...registerData } = formData;
       const result = await register({ ...registerData, role: 'user' });
-      
+
+      setLoading(false);
+
       if (result.success) {
-        Alert.alert('Éxito', 'Registro exitoso. Ahora puedes iniciar sesión.', [
-          { text: 'OK', onPress: () => navigation.navigate('Login') },
-        ]);
+        // En lugar de usar Alert, navegamos directamente
+        // Esto funciona mejor en web
+        alert('Registro exitoso. Ahora puedes iniciar sesión.');
+        navigation.navigate('Login');
       } else {
-        Alert.alert('Error', result.message || 'Error al registrar');
+        alert(result.message || 'Error al registrar');
       }
     } catch (error) {
-      Alert.alert('Error', 'Error de conexión. Verifica tu conexión a internet.');
-    } finally {
       setLoading(false);
+      alert('Error de conexión. Verifica tu conexión a internet.');
     }
   };
 
   const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -73,7 +79,9 @@ const RegisterScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.title}>Crear Cuenta</Text>
-          <Text style={styles.subtitle}>Completa el formulario para registrarte</Text>
+          <Text style={styles.subtitle}>
+            Completa el formulario para registrarte
+          </Text>
         </View>
 
         <View style={styles.form}>
@@ -263,4 +271,3 @@ const styles = StyleSheet.create({
 });
 
 export default RegisterScreen;
-

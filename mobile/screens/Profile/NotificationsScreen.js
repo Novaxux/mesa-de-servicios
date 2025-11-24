@@ -23,7 +23,10 @@ const NotificationsScreen = ({ navigation }) => {
 
   const loadNotifications = async () => {
     try {
-      const response = await notificationService.getAll({ unread_only: false });
+      const response = await notificationService.getAll({
+        is_read: undefined, // Obtener todas las notificaciones
+        limit: 50,
+      });
       if (response.success) {
         setNotifications(response.data.notifications || []);
       }
@@ -70,7 +73,9 @@ const NotificationsScreen = ({ navigation }) => {
       <Text style={styles.notificationMessage}>{item.message}</Text>
       <View style={styles.notificationFooter}>
         <Text style={styles.notificationDate}>
-          {format(new Date(item.created_at), 'dd MMM yyyy HH:mm', { locale: es })}
+          {format(new Date(item.created_at), 'dd MMM yyyy HH:mm', {
+            locale: es,
+          })}
         </Text>
         <TouchableOpacity
           onPress={() => handleDelete(item.id)}
@@ -94,7 +99,7 @@ const NotificationsScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Notificaciones</Text>
-        {notifications.filter(n => !n.is_read).length > 0 && (
+        {notifications.filter((n) => !n.is_read).length > 0 && (
           <TouchableOpacity
             style={styles.markAllButton}
             onPress={async () => {
@@ -106,7 +111,9 @@ const NotificationsScreen = ({ navigation }) => {
               }
             }}
           >
-            <Text style={styles.markAllButtonText}>Marcar todas como leídas</Text>
+            <Text style={styles.markAllButtonText}>
+              Marcar todas como leídas
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -234,4 +241,3 @@ const styles = StyleSheet.create({
 });
 
 export default NotificationsScreen;
-

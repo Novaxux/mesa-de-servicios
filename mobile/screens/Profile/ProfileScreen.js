@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
@@ -15,23 +14,13 @@ const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Cerrar Sesión',
-      '¿Estás seguro de que deseas cerrar sesión?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Cerrar Sesión',
-          style: 'destructive',
-          onPress: async () => {
-            setLoading(true);
-            await logout();
-            setLoading(false);
-            // La navegación se maneja automáticamente por el estado isAuthenticated
-          },
-        },
-      ]
-    );
+    if (window.confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+      setLoading(true);
+      logout().then(() => {
+        setLoading(false);
+        // La navegación se maneja automáticamente por el estado isAuthenticated
+      });
+    }
   };
 
   const getRoleName = (role) => {
@@ -56,7 +45,8 @@ const ProfileScreen = ({ navigation }) => {
       <View style={styles.header}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
-            {user?.first_name?.[0]}{user?.last_name?.[0]}
+            {user?.first_name?.[0]}
+            {user?.last_name?.[0]}
           </Text>
         </View>
         <Text style={styles.userName}>
@@ -70,7 +60,7 @@ const ProfileScreen = ({ navigation }) => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Información Personal</Text>
-        
+
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Nombre:</Text>
           <Text style={styles.infoValue}>
@@ -121,10 +111,7 @@ const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={handleLogout}
-      >
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -234,4 +221,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
-

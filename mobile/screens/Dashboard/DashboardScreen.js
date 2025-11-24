@@ -18,17 +18,44 @@ const DashboardScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    loadStatistics();
-  }, []);
+    if (user) {
+      loadStatistics();
+    }
+  }, [user]);
 
   const loadStatistics = async () => {
     try {
-      const response = await ticketService.getStatistics();
-      if (response.success) {
-        setStatistics(response.data.statistics);
+      // Solo cargar estadísticas si el usuario tiene permisos (admin o technician)
+      if (user?.role === 'admin' || user?.role === 'technician') {
+        const response = await ticketService.getStatistics();
+        if (response.success) {
+          setStatistics(response.data.statistics);
+        }
+      } else {
+        // Para usuarios normales, cargar solo sus propios tickets
+        const response = await ticketService.getAll({ created_by: user?.id });
+        if (response.success) {
+          const tickets = response.data.tickets || [];
+          setStatistics({
+            total: tickets.length,
+            open: tickets.filter((t) => t.status === 'open').length,
+            in_progress: tickets.filter((t) => t.status === 'in_progress')
+              .length,
+            resolved: tickets.filter((t) => t.status === 'resolved').length,
+            closed: tickets.filter((t) => t.status === 'closed').length,
+          });
+        }
       }
     } catch (error) {
       console.error('Error loading statistics:', error);
+      // Si hay error, establecer estadísticas en 0
+      setStatistics({
+        total: 0,
+        open: 0,
+        in_progress: 0,
+        resolved: 0,
+        closed: 0,
+      });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -84,7 +111,9 @@ const DashboardScreen = ({ navigation }) => {
             title="Abiertos"
             value={statistics?.open}
             color="#2196F3"
-            onPress={() => navigation.navigate('TicketList', { filter: 'open' })}
+            onPress={() =>
+              navigation.navigate('TicketList', { filter: 'open' })
+            }
           />
         </View>
 
@@ -93,20 +122,24 @@ const DashboardScreen = ({ navigation }) => {
             title="En Proceso"
             value={statistics?.in_progress}
             color="#FF9800"
-            onPress={() => navigation.navigate('TicketList', { filter: 'in_progress' })}
+            onPress={() =>
+              navigation.navigate('TicketList', { filter: 'in_progress' })
+            }
           />
           <StatCard
             title="Resueltos"
             value={statistics?.resolved}
             color="#4CAF50"
-            onPress={() => navigation.navigate('TicketList', { filter: 'resolved' })}
+            onPress={() =>
+              navigation.navigate('TicketList', { filter: 'resolved' })
+            }
           />
         </View>
       </View>
 
       <View style={styles.quickActions}>
         <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
-        
+
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => navigation.navigate('CreateTicket')}
@@ -126,7 +159,9 @@ const DashboardScreen = ({ navigation }) => {
             style={styles.actionButton}
             onPress={() => navigation.navigate('MyTickets')}
           >
-            <Text style={styles.actionButtonText}>🎫 Mis Tickets Asignados</Text>
+            <Text style={styles.actionButtonText}>
+              🎫 Mis Tickets Asignados
+            </Text>
           </TouchableOpacity>
         )}
 
@@ -142,7 +177,9 @@ const DashboardScreen = ({ navigation }) => {
               style={styles.actionButton}
               onPress={() => navigation.navigate('Technicians')}
             >
-              <Text style={styles.actionButtonText}>👥 Gestión de Técnicos</Text>
+              <Text style={styles.actionButtonText}>
+                👥 Gestión de Técnicos
+              </Text>
             </TouchableOpacity>
           </>
         )}
@@ -235,4 +272,3 @@ const styles = StyleSheet.create({
 });
 
 export default DashboardScreen;
-

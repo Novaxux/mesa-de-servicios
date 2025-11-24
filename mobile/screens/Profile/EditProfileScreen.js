@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
@@ -35,30 +34,31 @@ const EditProfileScreen = ({ navigation }) => {
   }, [user]);
 
   const handleUpdate = async () => {
-    if (!formData.first_name || !formData.last_name || !formData.email) {
-      Alert.alert('Error', 'Por favor completa los campos obligatorios');
+    if (!formData.first_name || !formData.last_name) {
+      alert('Por favor completa los campos obligatorios');
       return;
     }
 
     setLoading(true);
     try {
-      const result = await updateUser(formData);
+      // No enviar email ya que el backend no permite actualizarlo
+      const { email, ...updateData } = formData;
+      const result = await updateUser(updateData);
       if (result.success) {
-        Alert.alert('Éxito', 'Perfil actualizado exitosamente', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+        alert('Perfil actualizado exitosamente');
+        navigation.goBack();
       } else {
-        Alert.alert('Error', result.message || 'Error al actualizar perfil');
+        alert(result.message || 'Error al actualizar perfil');
       }
     } catch (error) {
-      Alert.alert('Error', 'Error de conexión. Verifica tu conexión a internet.');
+      alert('Error de conexión. Verifica tu conexión a internet.');
     } finally {
       setLoading(false);
     }
   };
 
   const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -85,12 +85,12 @@ const EditProfileScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email *</Text>
+          <Text style={styles.label}>Email (no editable)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.disabledInput]}
             placeholder="email@ejemplo.com"
             value={formData.email}
-            onChangeText={(value) => updateField('email', value)}
+            editable={false}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -173,7 +173,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  disabledInput: {
+    backgroundColor: '#f0f0f0',
+    color: '#999',
+  },
 });
 
 export default EditProfileScreen;
-
