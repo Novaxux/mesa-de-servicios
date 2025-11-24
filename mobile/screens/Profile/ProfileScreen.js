@@ -23,8 +23,11 @@ const ProfileScreen = ({ navigation }) => {
         {
           text: 'Cerrar Sesión',
           style: 'destructive',
-          onPress: () => {
-            logout();
+          onPress: async () => {
+            setLoading(true);
+            await logout();
+            setLoading(false);
+            // La navegación se maneja automáticamente por el estado isAuthenticated
           },
         },
       ]

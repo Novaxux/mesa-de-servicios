@@ -48,8 +48,9 @@ const RegisterScreen = ({ navigation }) => {
       const result = await register({ ...registerData, role: 'user' });
       
       if (result.success) {
-        Alert.alert('Éxito', 'Registro exitoso. Ahora puedes iniciar sesión.');
-        // No navegar automáticamente, el usuario puede hacerlo manualmente
+        Alert.alert('Éxito', 'Registro exitoso. Ahora puedes iniciar sesión.', [
+          { text: 'OK', onPress: () => navigation.navigate('Login') },
+        ]);
       } else {
         Alert.alert('Error', result.message || 'Error al registrar');
       }

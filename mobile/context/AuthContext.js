@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services/api';
 import { setAuthToken } from '../services/api';
 
@@ -42,11 +43,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Limpiar token en memoria
     setAuthToken(null);
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
+    
+    // Limpiar cualquier token que pueda estar en AsyncStorage (por si acaso)
+    try {
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('user');
+    } catch (error) {
+      console.error('Error clearing storage:', error);
+    }
   };
 
   const updateUser = async (profileData) => {
