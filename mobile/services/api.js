@@ -37,10 +37,7 @@ api.interceptors.request.use(
   (config) => {
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
-    } else {
-      console.log('⚠️ No authToken available for request:', config.url);
     }
-    console.log('🔑 Request to', config.url, '- Token present:', !!authToken);
     return config;
   },
   (error) => {

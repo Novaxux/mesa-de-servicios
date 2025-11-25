@@ -21,6 +21,7 @@ const TicketListScreen = ({ navigation, route }) => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showClosed, setShowClosed] = useState(false);
   const [filters, setFilters] = useState({
     status: route?.params?.filter || null,
     priority_id: null,
@@ -46,7 +47,22 @@ const TicketListScreen = ({ navigation, route }) => {
 
       const response = await ticketService.getAll(queryFilters);
       if (response.success) {
-        setTickets(response.data.tickets || []);
+        let filteredTickets = response.data.tickets || [];
+        
+        // Filtrar según la vista (activos o cerrados)
+        if (showClosed) {
+          // Mostrar solo cerrados y resueltos
+          filteredTickets = filteredTickets.filter(
+            t => t.status === 'closed' || t.status === 'resolved'
+          );
+        } else {
+          // Mostrar solo activos (open, in_progress, pending)
+          filteredTickets = filteredTickets.filter(
+            t => t.status !== 'closed' && t.status !== 'resolved'
+          );
+        }
+        
+        setTickets(filteredTickets);
       }
     } catch (error) {
       Alert.alert("Error", "No se pudieron cargar los tickets");
@@ -54,7 +70,7 @@ const TicketListScreen = ({ navigation, route }) => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [filters, can, user]);
+  }, [filters, can, user, showClosed]);
 
   useEffect(() => {
     loadTickets();
@@ -168,6 +184,26 @@ const TicketListScreen = ({ navigation, route }) => {
         )}
       </View>
 
+      {/* Toggle between Active and Closed tickets */}
+      <View style={styles.toggleContainer}>
+        <TouchableOpacity
+          style={[styles.toggleButton, !showClosed && styles.toggleButtonActive]}
+          onPress={() => setShowClosed(false)}
+        >
+          <Text style={[styles.toggleText, !showClosed && styles.toggleTextActive]}>
+            Activos
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toggleButton, showClosed && styles.toggleButtonActive]}
+          onPress={() => setShowClosed(true)}
+        >
+          <Text style={[styles.toggleText, showClosed && styles.toggleTextActive]}>
+            Historial
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={tickets}
         renderItem={renderTicket}
@@ -177,7 +213,11 @@ const TicketListScreen = ({ navigation, route }) => {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No hay tickets disponibles</Text>
+            <Text style={styles.emptyText}>
+              {showClosed
+                ? "No hay tickets en el historial"
+                : "No hay tickets activos"}
+            </Text>
           </View>
         }
         contentContainerStyle={styles.listContent}
@@ -219,6 +259,33 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    marginHorizontal: 5,
+    borderRadius: 8,
+  },
+  toggleButtonActive: {
+    backgroundColor: "#2196F3",
+  },
+  toggleText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#666",
+  },
+  toggleTextActive: {
+    color: "#fff",
   },
   listContent: {
     padding: 15,

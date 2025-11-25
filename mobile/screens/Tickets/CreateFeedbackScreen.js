@@ -36,10 +36,12 @@ const CreateFeedbackScreen = ({ route, navigation }) => {
           window.alert("¡Gracias por tu feedback!");
           navigation.goBack();
         } else {
-          Alert.alert("Error", result.message || "Error al enviar feedback");
+          window.alert(result.message || "Error al enviar feedback");
         }
       } catch (error) {
-        Alert.alert("Error", "Error de conexión. Intenta nuevamente.");
+        console.error("Feedback error:", error);
+        const errorMessage = error.response?.data?.message || "Error de conexión. Intenta nuevamente.";
+        window.alert(errorMessage);
       } finally {
         setSubmitting(false);
       }
