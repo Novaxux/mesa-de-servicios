@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,22 +8,34 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
-} from 'react-native';
-import { useAuth } from '../../context/AuthContext';
-import { knowledgeBaseService } from '../../services/api';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+} from "react-native";
+import { useAuth } from "../../context/AuthContext";
+import { usePermissions } from "../../hooks/usePermissions";
+import { knowledgeBaseService } from "../../services/api";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
-const KnowledgeBaseScreen = ({ navigation }) => {
+const KnowledgeBaseScreen = ({ navigation, route }) => {
   const { user } = useAuth();
+  const { can } = usePermissions();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     loadArticles();
   }, [searchQuery]);
+
+  // Recargar cuando se reciba el parámetro refresh
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      if (route.params?.refresh) {
+        loadArticles();
+      }
+    });
+    return unsubscribe;
+  }, [navigation, route.params?.refresh]);
 
   const loadArticles = async () => {
     try {
@@ -34,7 +46,7 @@ const KnowledgeBaseScreen = ({ navigation }) => {
         setArticles(response.data.articles || []);
       }
     } catch (error) {
-      console.error('Error loading articles:', error);
+      console.error("Error loading articles:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -49,7 +61,9 @@ const KnowledgeBaseScreen = ({ navigation }) => {
   const renderArticle = ({ item }) => (
     <TouchableOpacity
       style={styles.articleCard}
-      onPress={() => navigation.navigate('ArticleDetail', { articleId: item.id })}
+      onPress={() =>
+        navigation.navigate("ArticleDetail", { articleId: item.id })
+      }
     >
       <Text style={styles.articleTitle}>{item.title}</Text>
       <Text style={styles.articleContent} numberOfLines={2}>
@@ -77,6 +91,14 @@ const KnowledgeBaseScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Base de Conocimientos</Text>
+        {can.createArticle && (
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate("CreateArticle")}
+          >
+            <Text style={styles.addButtonText}>+ Nuevo</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.searchContainer}>
@@ -109,45 +131,45 @@ const KnowledgeBaseScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   addButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
   },
   addButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   searchContainer: {
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   searchInput: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
@@ -156,11 +178,11 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   articleCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 15,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -168,43 +190,42 @@ const styles = StyleSheet.create({
   },
   articleTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 8,
   },
   articleContent: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 10,
     lineHeight: 20,
   },
   articleFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   articleCategory: {
     fontSize: 12,
-    color: '#2196F3',
-    fontWeight: '600',
+    color: "#2196F3",
+    fontWeight: "600",
   },
   articleStats: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
   },
   articleStat: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   emptyContainer: {
     padding: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: "#999",
   },
 });
 
 export default KnowledgeBaseScreen;
-

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { usePermissions } from '../../hooks/usePermissions';
-import { knowledgeBaseService, categoryService } from '../../services/api';
-import { Picker } from '@react-native-picker/picker';
+} from "react-native";
+import { usePermissions } from "../../hooks/usePermissions";
+import { knowledgeBaseService, categoryService } from "../../services/api";
+import { Picker } from "@react-native-picker/picker";
 
 const CreateArticleScreen = ({ navigation, route }) => {
   const { can } = usePermissions();
@@ -19,20 +19,20 @@ const CreateArticleScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    category_id: '',
-    tags: '',
+    title: "",
+    content: "",
+    category_id: "",
+    tags: "",
   });
 
   React.useEffect(() => {
     if (!can.createArticle && !articleId) {
-      Alert.alert('Error', 'No tienes permisos para crear artículos');
+      Alert.alert("Error", "No tienes permisos para crear artículos");
       navigation.goBack();
       return;
     }
     loadCategories();
-    
+
     if (articleId) {
       loadArticle();
     }
@@ -45,7 +45,7 @@ const CreateArticleScreen = ({ navigation, route }) => {
         setCategories(response.data.categories || []);
       }
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error("Error loading categories:", error);
     }
   };
 
@@ -56,14 +56,14 @@ const CreateArticleScreen = ({ navigation, route }) => {
       if (response.success && response.data.article) {
         const article = response.data.article;
         setFormData({
-          title: article.title || '',
-          content: article.content || '',
-          category_id: String(article.category_id || ''),
-          tags: article.tags || '',
+          title: article.title || "",
+          content: article.content || "",
+          category_id: String(article.category_id || ""),
+          tags: article.tags || "",
         });
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo cargar el artículo');
+      Alert.alert("Error", "No se pudo cargar el artículo");
     } finally {
       setLoading(false);
     }
@@ -71,22 +71,24 @@ const CreateArticleScreen = ({ navigation, route }) => {
 
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
-      Alert.alert('Error', 'El título es requerido');
+      Alert.alert("Error", "El título es requerido");
       return;
     }
 
     if (!formData.content.trim()) {
-      Alert.alert('Error', 'El contenido es requerido');
+      Alert.alert("Error", "El contenido es requerido");
       return;
     }
 
     try {
       setLoading(true);
-      
+
       const dataToSend = {
         title: formData.title,
         content: formData.content,
-        category_id: formData.category_id ? parseInt(formData.category_id) : null,
+        category_id: formData.category_id
+          ? parseInt(formData.category_id)
+          : null,
         tags: formData.tags,
       };
 
@@ -99,20 +101,34 @@ const CreateArticleScreen = ({ navigation, route }) => {
 
       if (response.success) {
         Alert.alert(
-          'Éxito',
-          articleId ? 'Artículo actualizado correctamente' : 'Artículo creado correctamente',
+          "Éxito",
+          articleId
+            ? "Artículo actualizado correctamente"
+            : "Artículo creado correctamente",
           [
             {
-              text: 'OK',
-              onPress: () => navigation.goBack(),
+              text: "OK",
+              onPress: () => {
+                // Navegar de vuelta y forzar recarga
+                navigation.navigate("MainTabs", {
+                  screen: "KnowledgeBase",
+                  params: { refresh: Date.now() },
+                });
+              },
             },
           ]
         );
+      } else {
+        Alert.alert(
+          "Error",
+          response.message || "No se pudo guardar el artículo"
+        );
       }
     } catch (error) {
+      console.error("Error saving article:", error);
       Alert.alert(
-        'Error',
-        error.response?.data?.message || 'No se pudo guardar el artículo'
+        "Error",
+        error.response?.data?.message || "No se pudo guardar el artículo"
       );
     } finally {
       setLoading(false);
@@ -128,10 +144,13 @@ const CreateArticleScreen = ({ navigation, route }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.form}>
         <Text style={styles.formTitle}>
-          {articleId ? 'Editar Artículo' : 'Nuevo Artículo'}
+          {articleId ? "Editar Artículo" : "Nuevo Artículo"}
         </Text>
 
         <View style={styles.inputGroup}>
@@ -200,7 +219,7 @@ const CreateArticleScreen = ({ navigation, route }) => {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.buttonText}>
-              {articleId ? 'Actualizar Artículo' : 'Crear Artículo'}
+              {articleId ? "Actualizar Artículo" : "Crear Artículo"}
             </Text>
           )}
         </TouchableOpacity>
@@ -212,20 +231,23 @@ const CreateArticleScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   form: {
     padding: 15,
   },
   formTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 20,
   },
   inputGroup: {
@@ -233,51 +255,51 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
   },
   textArea: {
     minHeight: 200,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   pickerContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
-    overflow: 'hidden',
+    borderColor: "#ddd",
+    overflow: "hidden",
   },
   picker: {
     height: 50,
   },
   hint: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginTop: 5,
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

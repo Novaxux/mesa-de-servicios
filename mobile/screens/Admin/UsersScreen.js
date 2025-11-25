@@ -47,6 +47,11 @@ const UsersScreen = ({ navigation }) => {
   };
 
   const handleDeleteUser = async (userId) => {
+    if (!can.deleteUser) {
+      Alert.alert("Error", "No tienes permisos para eliminar usuarios");
+      return;
+    }
+
     Alert.alert(
       "Confirmar",
       "¿Estás seguro de que deseas eliminar este usuario?",
@@ -61,9 +66,19 @@ const UsersScreen = ({ navigation }) => {
               if (response.success) {
                 Alert.alert("Éxito", "Usuario eliminado correctamente");
                 loadUsers();
+              } else {
+                Alert.alert(
+                  "Error",
+                  response.message || "No se pudo eliminar el usuario"
+                );
               }
             } catch (error) {
-              Alert.alert("Error", "No se pudo eliminar el usuario");
+              console.error("Error deleting user:", error);
+              const errorMsg =
+                error.response?.data?.message ||
+                error.message ||
+                "No se pudo eliminar el usuario";
+              Alert.alert("Error", errorMsg);
             }
           },
         },

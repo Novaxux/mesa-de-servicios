@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-} from 'react-native';
-import { knowledgeBaseService } from '../../services/api';
+} from "react-native";
+import { knowledgeBaseService } from "../../services/api";
 
 const ArticleDetailScreen = ({ route, navigation }) => {
   const { articleId } = route.params;
@@ -25,8 +25,8 @@ const ArticleDetailScreen = ({ route, navigation }) => {
         setArticle(response.data.article);
       }
     } catch (error) {
-      console.error('Error loading article:', error);
-      alert('Error al cargar el artículo');
+      console.error("Error loading article:", error);
+      alert("Error al cargar el artículo");
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -36,11 +36,11 @@ const ArticleDetailScreen = ({ route, navigation }) => {
   const handleMarkHelpful = async () => {
     try {
       await knowledgeBaseService.markHelpful(articleId);
-      alert('¡Gracias por tu feedback!');
+      alert("¡Gracias por tu feedback!");
       // Recargar el artículo para actualizar el contador
       loadArticle();
     } catch (error) {
-      console.error('Error marking as helpful:', error);
+      console.error("Error marking as helpful:", error);
     }
   };
 
@@ -61,7 +61,10 @@ const ArticleDetailScreen = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>{article.title}</Text>
 
@@ -88,7 +91,7 @@ const ArticleDetailScreen = ({ route, navigation }) => {
 
         {article.tags && (
           <View style={styles.tagsContainer}>
-            {article.tags.split(',').map((tag, index) => (
+            {article.tags.split(",").map((tag, index) => (
               <View key={index} style={styles.tag}>
                 <Text style={styles.tagText}>{tag.trim()}</Text>
               </View>
@@ -113,11 +116,11 @@ const ArticleDetailScreen = ({ route, navigation }) => {
 
         {article.created_at && (
           <Text style={styles.dateText}>
-            Creado el{' '}
-            {new Date(article.created_at).toLocaleDateString('es-ES', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            Creado el{" "}
+            {new Date(article.created_at).toLocaleDateString("es-ES", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </Text>
         )}
@@ -129,55 +132,58 @@ const ArticleDetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 15,
     lineHeight: 32,
   },
   metadata: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 15,
   },
   categoryBadge: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: "#E3F2FD",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
   },
   categoryText: {
-    color: '#2196F3',
+    color: "#2196F3",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   stats: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 15,
   },
   statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 5,
   },
   statIcon: {
@@ -185,25 +191,25 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
   tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   tag: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   tagText: {
     fontSize: 11,
-    color: '#666',
+    color: "#666",
   },
   contentContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     marginTop: 10,
     marginBottom: 10,
@@ -211,29 +217,29 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#333',
+    color: "#333",
   },
   footer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   helpfulButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
     marginBottom: 15,
   },
   helpfulButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dateText: {
     fontSize: 12,
-    color: '#999',
-    fontStyle: 'italic',
+    color: "#999",
+    fontStyle: "italic",
   },
 });
 

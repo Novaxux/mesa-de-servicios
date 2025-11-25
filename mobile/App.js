@@ -31,10 +31,16 @@ import NotificationsScreen from "./screens/Profile/NotificationsScreen";
 
 // Admin Screens
 import UsersScreen from "./screens/Admin/UsersScreen";
+import UserDetailScreen from "./screens/Admin/UserDetailScreen";
+import CreateUserScreen from "./screens/Admin/CreateUserScreen";
 import ReportsScreen from "./screens/Admin/ReportsScreen";
 import CategoriesScreen from "./screens/Admin/CategoriesScreen";
 import TechniciansScreen from "./screens/Admin/TechniciansScreen";
+import TechnicianDetailScreen from "./screens/Admin/TechnicianDetailScreen";
 import SLAConfigScreen from "./screens/Admin/SLAConfigScreen";
+import TechnicianReportsScreen from "./screens/Admin/TechnicianReportsScreen";
+import IncidentReportsScreen from "./screens/Admin/IncidentReportsScreen";
+import FeedbackReportsScreen from "./screens/Admin/FeedbackReportsScreen";
 
 // Knowledge Base
 import CreateArticleScreen from "./screens/KnowledgeBase/CreateArticleScreen";
@@ -155,6 +161,16 @@ const MainStack = () => (
       options={{ title: "Gestión de Usuarios" }}
     />
     <Stack.Screen
+      name="UserDetail"
+      component={UserDetailScreen}
+      options={{ title: "Detalle del Usuario" }}
+    />
+    <Stack.Screen
+      name="CreateUser"
+      component={CreateUserScreen}
+      options={{ title: "Crear Usuario" }}
+    />
+    <Stack.Screen
       name="Categories"
       component={CategoriesScreen}
       options={{ title: "Gestión de Categorías" }}
@@ -165,6 +181,11 @@ const MainStack = () => (
       options={{ title: "Gestión de Técnicos" }}
     />
     <Stack.Screen
+      name="TechnicianDetail"
+      component={TechnicianDetailScreen}
+      options={{ title: "Detalle del Técnico" }}
+    />
+    <Stack.Screen
       name="SLAConfig"
       component={SLAConfigScreen}
       options={{ title: "Configuración SLA" }}
@@ -173,6 +194,21 @@ const MainStack = () => (
       name="CreateArticle"
       component={CreateArticleScreen}
       options={{ title: "Crear Artículo" }}
+    />
+    <Stack.Screen
+      name="TechnicianReports"
+      component={TechnicianReportsScreen}
+      options={{ title: "Reportes de Técnicos" }}
+    />
+    <Stack.Screen
+      name="IncidentReports"
+      component={IncidentReportsScreen}
+      options={{ title: "Reportes de Incidentes" }}
+    />
+    <Stack.Screen
+      name="FeedbackReports"
+      component={FeedbackReportsScreen}
+      options={{ title: "Reportes de Feedback" }}
     />
   </Stack.Navigator>
 );

@@ -10,8 +10,6 @@ services:
       MYSQL_DATABASE: mesa_servicios
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppassword
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./data/schema.sql:/docker-entrypoint-initdb.d/schema.sql

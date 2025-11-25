@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,9 +9,9 @@ import {
   Alert,
   ActivityIndicator,
   Switch,
-} from 'react-native';
-import { usePermissions } from '../../hooks/usePermissions';
-import { technicianService } from '../../services/api';
+} from "react-native";
+import { usePermissions } from "../../hooks/usePermissions";
+import { technicianService } from "../../services/api";
 
 const TechniciansScreen = ({ navigation }) => {
   const { can } = usePermissions();
@@ -20,7 +20,7 @@ const TechniciansScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (!can.viewTechnicians) {
-      Alert.alert('Error', 'No tienes permisos para ver técnicos');
+      Alert.alert("Error", "No tienes permisos para ver técnicos");
       navigation.goBack();
       return;
     }
@@ -34,7 +34,7 @@ const TechniciansScreen = ({ navigation }) => {
         setTechnicians(response.data.technicians || []);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudieron cargar los técnicos');
+      Alert.alert("Error", "No se pudieron cargar los técnicos");
     } finally {
       setLoading(false);
     }
@@ -42,7 +42,7 @@ const TechniciansScreen = ({ navigation }) => {
 
   const toggleAvailability = async (technicianId, currentStatus) => {
     if (!can.updateTechnician) {
-      Alert.alert('Error', 'No tienes permisos para actualizar técnicos');
+      Alert.alert("Error", "No tienes permisos para actualizar técnicos");
       return;
     }
 
@@ -55,12 +55,12 @@ const TechniciansScreen = ({ navigation }) => {
         loadTechnicians();
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar el estado');
+      Alert.alert("Error", "No se pudo actualizar el estado");
     }
   };
 
   const handleViewDetails = (technician) => {
-    navigation.navigate('TechnicianDetail', { technicianId: technician.id });
+    navigation.navigate("TechnicianDetail", { technicianId: technician.id });
   };
 
   if (loading) {
@@ -72,13 +72,16 @@ const TechniciansScreen = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Técnicos</Text>
         {can.createTechnician && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate('CreateTechnician')}
+            onPress={() => navigation.navigate("CreateTechnician")}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>
@@ -113,15 +116,20 @@ const TechniciansScreen = ({ navigation }) => {
                 {can.updateTechnician && (
                   <View style={styles.availabilityContainer}>
                     <Text style={styles.availabilityLabel}>
-                      {technician.is_available ? 'Disponible' : 'No Disponible'}
+                      {technician.is_available ? "Disponible" : "No Disponible"}
                     </Text>
                     <Switch
                       value={technician.is_available}
                       onValueChange={() =>
-                        toggleAvailability(technician.id, technician.is_available)
+                        toggleAvailability(
+                          technician.id,
+                          technician.is_available
+                        )
                       }
-                      trackColor={{ false: '#767577', true: '#81b0ff' }}
-                      thumbColor={technician.is_available ? '#2196F3' : '#f4f3f4'}
+                      trackColor={{ false: "#767577", true: "#81b0ff" }}
+                      thumbColor={
+                        technician.is_available ? "#2196F3" : "#f4f3f4"
+                      }
                     />
                   </View>
                 )}
@@ -131,7 +139,8 @@ const TechniciansScreen = ({ navigation }) => {
                 <View style={styles.statItem}>
                   <Text style={styles.statLabel}>Asignados</Text>
                   <Text style={styles.statValue}>
-                    {technician.assigned_tickets || 0} / {technician.max_tickets || 10}
+                    {technician.assigned_tickets || 0} /{" "}
+                    {technician.max_tickets || 10}
                   </Text>
                 </View>
 
@@ -155,106 +164,109 @@ const TechniciansScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   addButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
   },
   addButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   listContainer: {
     padding: 15,
   },
   emptyContainer: {
     padding: 40,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: "#999",
   },
   technicianCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 15,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
   technicianHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   technicianName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   technicianEmail: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 2,
   },
   technicianSpecialty: {
     fontSize: 14,
-    color: '#2196F3',
+    color: "#2196F3",
     marginTop: 5,
   },
   availabilityContainer: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   availabilityLabel: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginBottom: 5,
   },
   technicianStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: "#eee",
     paddingTop: 10,
   },
   statItem: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   statLabel: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginBottom: 5,
   },
   statValue: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
 });
 

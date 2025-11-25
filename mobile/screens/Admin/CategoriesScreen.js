@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { usePermissions } from '../../hooks/usePermissions';
-import { categoryService } from '../../services/api';
+} from "react-native";
+import { usePermissions } from "../../hooks/usePermissions";
+import { categoryService } from "../../services/api";
 
 const CategoriesScreen = ({ navigation }) => {
   const { can } = usePermissions();
@@ -19,13 +19,13 @@ const CategoriesScreen = ({ navigation }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
   });
 
   useEffect(() => {
     if (!can.viewCategories) {
-      Alert.alert('Error', 'No tienes permisos para ver categorías');
+      Alert.alert("Error", "No tienes permisos para ver categorías");
       navigation.goBack();
       return;
     }
@@ -39,7 +39,7 @@ const CategoriesScreen = ({ navigation }) => {
         setCategories(response.data.categories || []);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudieron cargar las categorías');
+      Alert.alert("Error", "No se pudieron cargar las categorías");
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ const CategoriesScreen = ({ navigation }) => {
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      Alert.alert('Error', 'El nombre es requerido');
+      Alert.alert("Error", "El nombre es requerido");
       return;
     }
 
@@ -60,58 +60,70 @@ const CategoriesScreen = ({ navigation }) => {
       }
 
       if (response.success) {
-        Alert.alert('Éxito', editingId ? 'Categoría actualizada' : 'Categoría creada');
+        Alert.alert(
+          "Éxito",
+          editingId ? "Categoría actualizada" : "Categoría creada"
+        );
         setShowForm(false);
         setEditingId(null);
-        setFormData({ name: '', description: '' });
+        setFormData({ name: "", description: "" });
         loadCategories();
       }
     } catch (error) {
-      Alert.alert('Error', error.response?.data?.message || 'Error al guardar categoría');
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Error al guardar categoría"
+      );
     }
   };
 
   const handleEdit = (category) => {
     if (!can.updateCategory) {
-      Alert.alert('Error', 'No tienes permisos para editar categorías');
+      Alert.alert("Error", "No tienes permisos para editar categorías");
       return;
     }
     setEditingId(category.id);
     setFormData({
       name: category.name,
-      description: category.description || '',
+      description: category.description || "",
     });
     setShowForm(true);
   };
 
   const handleDelete = (categoryId) => {
     if (!can.deleteCategory) {
-      Alert.alert('Error', 'No tienes permisos para eliminar categorías');
+      Alert.alert("Error", "No tienes permisos para eliminar categorías");
       return;
     }
 
-    Alert.alert(
-      'Confirmar',
-      '¿Estás seguro de eliminar esta categoría?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const response = await categoryService.delete(categoryId);
-              if (response.success) {
-                Alert.alert('Éxito', 'Categoría eliminada');
-                loadCategories();
-              }
-            } catch (error) {
-              Alert.alert('Error', 'No se pudo eliminar la categoría');
+    Alert.alert("Confirmar", "¿Estás seguro de eliminar esta categoría?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const response = await categoryService.delete(categoryId);
+            if (response.success) {
+              Alert.alert("Éxito", "Categoría eliminada");
+              loadCategories();
+            } else {
+              Alert.alert(
+                "Error",
+                response.message || "No se pudo eliminar la categoría"
+              );
             }
-          },
+          } catch (error) {
+            console.error("Error deleting category:", error);
+            const errorMsg =
+              error.response?.data?.message ||
+              error.message ||
+              "No se pudo eliminar la categoría";
+            Alert.alert("Error", errorMsg);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   if (loading) {
@@ -123,7 +135,10 @@ const CategoriesScreen = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Categorías</Text>
         {can.createCategory && (
@@ -132,7 +147,7 @@ const CategoriesScreen = ({ navigation }) => {
             onPress={() => {
               setShowForm(true);
               setEditingId(null);
-              setFormData({ name: '', description: '' });
+              setFormData({ name: "", description: "" });
             }}
           >
             <Text style={styles.addButtonText}>+ Nueva</Text>
@@ -143,7 +158,7 @@ const CategoriesScreen = ({ navigation }) => {
       {showForm && (
         <View style={styles.formContainer}>
           <Text style={styles.formTitle}>
-            {editingId ? 'Editar Categoría' : 'Nueva Categoría'}
+            {editingId ? "Editar Categoría" : "Nueva Categoría"}
           </Text>
 
           <TextInput
@@ -157,7 +172,9 @@ const CategoriesScreen = ({ navigation }) => {
             style={[styles.input, styles.textArea]}
             placeholder="Descripción"
             value={formData.description}
-            onChangeText={(text) => setFormData({ ...formData, description: text })}
+            onChangeText={(text) =>
+              setFormData({ ...formData, description: text })
+            }
             multiline
             numberOfLines={3}
           />
@@ -168,7 +185,7 @@ const CategoriesScreen = ({ navigation }) => {
               onPress={() => {
                 setShowForm(false);
                 setEditingId(null);
-                setFormData({ name: '', description: '' });
+                setFormData({ name: "", description: "" });
               }}
             >
               <Text style={styles.cancelButtonText}>Cancelar</Text>
@@ -225,43 +242,46 @@ const CategoriesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   addButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
   },
   addButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   formContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     margin: 15,
     padding: 15,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -269,12 +289,12 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 15,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
@@ -282,46 +302,46 @@ const styles = StyleSheet.create({
   },
   textArea: {
     minHeight: 80,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   formButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 10,
   },
   button: {
     flex: 1,
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginHorizontal: 5,
   },
   cancelButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   cancelButtonText: {
-    color: '#666',
-    fontWeight: '600',
+    color: "#666",
+    fontWeight: "600",
   },
   saveButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
   },
   saveButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   listContainer: {
     padding: 15,
   },
   categoryCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 15,
     marginBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -332,16 +352,16 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 5,
   },
   categoryDescription: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   categoryActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   actionButton: {
     padding: 8,

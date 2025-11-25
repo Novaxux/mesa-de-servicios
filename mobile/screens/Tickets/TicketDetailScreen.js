@@ -243,7 +243,7 @@ const TicketDetailScreen = ({ route, navigation }) => {
           <TouchableOpacity
             style={styles.editButton}
             onPress={() =>
-              navigation.navigate("EditTicket", { ticketId: ticket.id })
+              navigation.navigate("CreateTicket", { ticketId: ticket.id })
             }
           >
             <Text style={styles.editButtonText}>✏️ Editar Ticket</Text>

@@ -316,6 +316,21 @@ export const reportService = {
     });
     return response.data;
   },
+
+  getTechnicianStats: async () => {
+    const response = await api.get("/reports/technician-stats");
+    return response.data;
+  },
+
+  getIncidentReports: async () => {
+    const response = await api.get("/reports/incident-reports");
+    return response.data;
+  },
+
+  getFeedbackReports: async () => {
+    const response = await api.get("/reports/feedback-reports");
+    return response.data;
+  },
 };
 
 // Servicios de SLA

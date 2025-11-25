@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { usePermissions } from '../../hooks/usePermissions';
-import { slaService } from '../../services/api';
+} from "react-native";
+import { usePermissions } from "../../hooks/usePermissions";
+import { slaService } from "../../services/api";
 
 const SLAConfigScreen = ({ navigation }) => {
   const { can } = usePermissions();
@@ -18,7 +18,7 @@ const SLAConfigScreen = ({ navigation }) => {
   const [configs, setConfigs] = useState([
     {
       priority_id: 1,
-      priority_name: 'Baja',
+      priority_name: "Baja",
       response_time_hours: 24,
       resolution_time_hours: 72,
       escalation_enabled: true,
@@ -26,7 +26,7 @@ const SLAConfigScreen = ({ navigation }) => {
     },
     {
       priority_id: 2,
-      priority_name: 'Media',
+      priority_name: "Media",
       response_time_hours: 8,
       resolution_time_hours: 48,
       escalation_enabled: true,
@@ -34,7 +34,7 @@ const SLAConfigScreen = ({ navigation }) => {
     },
     {
       priority_id: 3,
-      priority_name: 'Alta',
+      priority_name: "Alta",
       response_time_hours: 4,
       resolution_time_hours: 24,
       escalation_enabled: true,
@@ -42,7 +42,7 @@ const SLAConfigScreen = ({ navigation }) => {
     },
     {
       priority_id: 4,
-      priority_name: 'Crítica',
+      priority_name: "Crítica",
       response_time_hours: 1,
       resolution_time_hours: 8,
       escalation_enabled: true,
@@ -52,7 +52,7 @@ const SLAConfigScreen = ({ navigation }) => {
 
   React.useEffect(() => {
     if (!can.viewSLAConfig) {
-      Alert.alert('Error', 'No tienes permisos para ver la configuración SLA');
+      Alert.alert("Error", "No tienes permisos para ver la configuración SLA");
       navigation.goBack();
       return;
     }
@@ -67,7 +67,7 @@ const SLAConfigScreen = ({ navigation }) => {
         setConfigs(response.data.sla_configs);
       }
     } catch (error) {
-      console.error('Error loading SLA config:', error);
+      console.error("Error loading SLA config:", error);
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,10 @@ const SLAConfigScreen = ({ navigation }) => {
 
   const handleUpdateConfig = async (priorityId, field, value) => {
     if (!can.updateSLAConfig) {
-      Alert.alert('Error', 'No tienes permisos para actualizar la configuración SLA');
+      Alert.alert(
+        "Error",
+        "No tienes permisos para actualizar la configuración SLA"
+      );
       return;
     }
 
@@ -90,13 +93,16 @@ const SLAConfigScreen = ({ navigation }) => {
 
   const handleSave = async () => {
     if (!can.updateSLAConfig) {
-      Alert.alert('Error', 'No tienes permisos para actualizar la configuración SLA');
+      Alert.alert(
+        "Error",
+        "No tienes permisos para actualizar la configuración SLA"
+      );
       return;
     }
 
     try {
       setLoading(true);
-      
+
       // Guardar cada configuración
       for (const config of configs) {
         await slaService.updateConfig({
@@ -108,9 +114,9 @@ const SLAConfigScreen = ({ navigation }) => {
         });
       }
 
-      Alert.alert('Éxito', 'Configuración SLA actualizada correctamente');
+      Alert.alert("Éxito", "Configuración SLA actualizada correctamente");
     } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar la configuración SLA');
+      Alert.alert("Error", "No se pudo actualizar la configuración SLA");
     } finally {
       setLoading(false);
     }
@@ -125,7 +131,10 @@ const SLAConfigScreen = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Configuración SLA</Text>
         <Text style={styles.headerSubtitle}>
@@ -135,7 +144,9 @@ const SLAConfigScreen = ({ navigation }) => {
 
       {configs.map((config) => (
         <View key={config.priority_id} style={styles.configCard}>
-          <Text style={styles.priorityName}>Prioridad: {config.priority_name}</Text>
+          <Text style={styles.priorityName}>
+            Prioridad: {config.priority_name}
+          </Text>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Tiempo de Respuesta (horas)</Text>
@@ -143,7 +154,11 @@ const SLAConfigScreen = ({ navigation }) => {
               style={styles.input}
               value={String(config.response_time_hours)}
               onChangeText={(text) =>
-                handleUpdateConfig(config.priority_id, 'response_time_hours', text)
+                handleUpdateConfig(
+                  config.priority_id,
+                  "response_time_hours",
+                  text
+                )
               }
               keyboardType="numeric"
               editable={can.updateSLAConfig}
@@ -156,7 +171,11 @@ const SLAConfigScreen = ({ navigation }) => {
               style={styles.input}
               value={String(config.resolution_time_hours)}
               onChangeText={(text) =>
-                handleUpdateConfig(config.priority_id, 'resolution_time_hours', text)
+                handleUpdateConfig(
+                  config.priority_id,
+                  "resolution_time_hours",
+                  text
+                )
               }
               keyboardType="numeric"
               editable={can.updateSLAConfig}
@@ -169,7 +188,11 @@ const SLAConfigScreen = ({ navigation }) => {
               style={styles.input}
               value={String(config.escalation_time_hours)}
               onChangeText={(text) =>
-                handleUpdateConfig(config.priority_id, 'escalation_time_hours', text)
+                handleUpdateConfig(
+                  config.priority_id,
+                  "escalation_time_hours",
+                  text
+                )
               }
               keyboardType="numeric"
               editable={can.updateSLAConfig}
@@ -187,13 +210,16 @@ const SLAConfigScreen = ({ navigation }) => {
       <View style={styles.infoBox}>
         <Text style={styles.infoTitle}>ℹ️ Información</Text>
         <Text style={styles.infoText}>
-          • Tiempo de Respuesta: Tiempo máximo para dar una primera respuesta al ticket
+          • Tiempo de Respuesta: Tiempo máximo para dar una primera respuesta al
+          ticket
         </Text>
         <Text style={styles.infoText}>
-          • Tiempo de Resolución: Tiempo máximo para resolver el ticket completamente
+          • Tiempo de Resolución: Tiempo máximo para resolver el ticket
+          completamente
         </Text>
         <Text style={styles.infoText}>
-          • Tiempo de Escalación: Tiempo antes de escalar el ticket si no hay respuesta
+          • Tiempo de Escalación: Tiempo antes de escalar el ticket si no hay
+          respuesta
         </Text>
       </View>
     </ScrollView>
@@ -203,35 +229,38 @@ const SLAConfigScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginTop: 5,
   },
   configCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     margin: 15,
     padding: 15,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -239,8 +268,8 @@ const styles = StyleSheet.create({
   },
   priorityName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 15,
   },
   inputGroup: {
@@ -248,42 +277,42 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 5,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
   },
   saveButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
     margin: 15,
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   saveButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   infoBox: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: "#E3F2FD",
     margin: 15,
     padding: 15,
     borderRadius: 8,
   },
   infoTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1976D2',
+    fontWeight: "bold",
+    color: "#1976D2",
     marginBottom: 10,
   },
   infoText: {
     fontSize: 14,
-    color: '#1565C0',
+    color: "#1565C0",
     marginBottom: 5,
     lineHeight: 20,
   },
