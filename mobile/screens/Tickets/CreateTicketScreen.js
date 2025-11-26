@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import { ticketService, categoryService } from "../../services/api";
+import { ticketService, categoryService, departmentService } from "../../services/api";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 
@@ -23,17 +23,19 @@ const CreateTicketScreen = () => {
   const isEditMode = !!ticketId;
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     priority_id: 2, // Media por defecto
     category_id: null,
-    department: user?.department || "",
+    department_id: user?.department_id || null,
   });
   const [attachments, setAttachments] = useState([]);
 
   useEffect(() => {
     loadCategories();
+    loadDepartments();
     if (isEditMode) {
       loadTicket();
     }
@@ -56,6 +58,24 @@ const CreateTicketScreen = () => {
     }
   };
 
+  const loadDepartments = async () => {
+    try {
+      const response = await departmentService.getAll();
+      if (response.success) {
+        setDepartments(response.data.departments || []);
+        // Si el usuario tiene departamento pero no está en formData, asignarlo
+        if (user?.department_id && !formData.department_id && !isEditMode) {
+          setFormData((prev) => ({
+            ...prev,
+            department_id: user.department_id,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Error loading departments:", error);
+    }
+  };
+
   const loadTicket = async () => {
     try {
       setLoading(true);
@@ -67,7 +87,7 @@ const CreateTicketScreen = () => {
           description: ticket.description || "",
           priority_id: ticket.priority_id || 2,
           category_id: ticket.category_id || null,
-          department: ticket.department || "",
+          department_id: ticket.department_id || user?.department_id || null,
         });
       }
     } catch (error) {
@@ -267,14 +287,20 @@ const CreateTicketScreen = () => {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Departamento</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="IT"
-            value={formData.department}
-            onChangeText={(value) =>
-              setFormData((prev) => ({ ...prev, department: value }))
-            }
-          />
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={formData.department_id}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, department_id: value }))
+              }
+              style={styles.picker}
+            >
+              <Picker.Item label="Seleccionar departamento" value={null} />
+              {departments.map((dept) => (
+                <Picker.Item key={dept.id} label={dept.name} value={dept.id} />
+              ))}
+            </Picker>
+          </View>
         </View>
 
         <View style={styles.inputContainer}>

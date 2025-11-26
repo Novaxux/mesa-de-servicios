@@ -7,7 +7,12 @@ class Department {
     const rows = await db.query(
       "SELECT * FROM departments WHERE is_active = TRUE ORDER BY name"
     );
-    console.log("Department.getAll - rows type:", typeof rows, "isArray:", Array.isArray(rows));
+    console.log(
+      "Department.getAll - rows type:",
+      typeof rows,
+      "isArray:",
+      Array.isArray(rows)
+    );
     console.log("Department.getAll - rows:", JSON.stringify(rows));
     return rows;
   }
@@ -15,9 +20,7 @@ class Department {
   // Obtener departamento por ID
   static async getById(id) {
     // db.query ya desestructura [results] del pool.execute
-    const rows = await db.query("SELECT * FROM departments WHERE id = ?", [
-      id,
-    ]);
+    const rows = await db.query("SELECT * FROM departments WHERE id = ?", [id]);
     console.log("Department.getById - id:", id, "rows:", rows);
     return rows && rows.length > 0 ? rows[0] : null;
   }
@@ -106,9 +109,10 @@ class Department {
     );
 
     return {
-      total_users: (userCount && userCount[0]) ? userCount[0].count : 0,
-      open_tickets: (openTickets && openTickets[0]) ? openTickets[0].count : 0,
-      closed_this_month: (closedThisMonth && closedThisMonth[0]) ? closedThisMonth[0].count : 0,
+      total_users: userCount && userCount[0] ? userCount[0].count : 0,
+      open_tickets: openTickets && openTickets[0] ? openTickets[0].count : 0,
+      closed_this_month:
+        closedThisMonth && closedThisMonth[0] ? closedThisMonth[0].count : 0,
     };
   }
 

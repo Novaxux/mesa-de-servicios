@@ -96,21 +96,21 @@ const ProfileScreen = () => {
       <View style={styles.section}>
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate("EditProfile")}
+          onPress={() => router.push("/edit-profile")}
         >
           <Text style={styles.menuItemText}>✏️ Editar Perfil</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate("ChangePassword")}
+          onPress={() => router.push("/change-password")}
         >
           <Text style={styles.menuItemText}>🔒 Cambiar Contraseña</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate("Notifications")}
+          onPress={() => router.push("/notifications")}
         >
           <Text style={styles.menuItemText}>🔔 Notificaciones</Text>
         </TouchableOpacity>
