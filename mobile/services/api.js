@@ -341,6 +341,42 @@ export const reportService = {
     const response = await api.get("/reports/feedback-reports");
     return response.data;
   },
+
+  // Exportación CSV
+  exportTicketsCSV: async (dateFrom, dateTo) => {
+    const params = new URLSearchParams();
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+    return `${API_BASE_URL}/reports/export/tickets/csv?${params.toString()}`;
+  },
+
+  exportSLACSV: async (dateFrom, dateTo) => {
+    const params = new URLSearchParams();
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+    return `${API_BASE_URL}/reports/export/sla/csv?${params.toString()}`;
+  },
+
+  exportTechniciansCSV: async (dateFrom, dateTo) => {
+    const params = new URLSearchParams();
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+    return `${API_BASE_URL}/reports/export/technicians/csv?${params.toString()}`;
+  },
+
+  exportIncidentsCSV: async (dateFrom, dateTo) => {
+    const params = new URLSearchParams();
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+    return `${API_BASE_URL}/reports/export/incidents/csv?${params.toString()}`;
+  },
+
+  exportFeedbackCSV: async (dateFrom, dateTo) => {
+    const params = new URLSearchParams();
+    if (dateFrom) params.append("date_from", dateFrom);
+    if (dateTo) params.append("date_to", dateTo);
+    return `${API_BASE_URL}/reports/export/feedback/csv?${params.toString()}`;
+  },
 };
 
 // Servicios de SLA

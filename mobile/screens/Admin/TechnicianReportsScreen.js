@@ -7,9 +7,10 @@ import {
   ActivityIndicator,
   RefreshControl,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import { usePermissions } from "../../hooks/usePermissions";
-import { reportService } from "../../services/api";
+import { reportService, getAuthToken } from "../../services/api";
 
 const TechnicianReportsScreen = ({ navigation }) => {
   const { can } = usePermissions();
@@ -44,6 +45,30 @@ const TechnicianReportsScreen = ({ navigation }) => {
   const onRefresh = () => {
     setRefreshing(true);
     loadReports();
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const token = getAuthToken();
+      const dateFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
+      const dateTo = new Date().toISOString().split("T")[0];
+
+      const url = await reportService.exportTechniciansCSV(dateFrom, dateTo);
+      const urlWithAuth = `${url}&token=${token}`;
+
+      const supported = await Linking.canOpenURL(urlWithAuth);
+      if (supported) {
+        await Linking.openURL(urlWithAuth);
+        window.alert("Descargando reporte de técnicos...");
+      } else {
+        window.alert("No se puede abrir el enlace de descarga");
+      }
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+      window.alert("Error al exportar el reporte");
+    }
   };
 
   const getPerformanceColor = (percentage) => {
@@ -161,6 +186,10 @@ const TechnicianReportsScreen = ({ navigation }) => {
         <Text style={styles.headerSubtitle}>
           Desempeño y estadísticas del equipo
         </Text>
+
+        <TouchableOpacity style={styles.exportButton} onPress={handleExportCSV}>
+          <Text style={styles.exportButtonText}>📥 Exportar a CSV</Text>
+        </TouchableOpacity>
       </View>
 
       {technicianStats.length === 0 ? (
@@ -203,6 +232,18 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 14,
     color: "#E3F2FD",
+  },
+  exportButton: {
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 15,
+    alignItems: "center",
+  },
+  exportButtonText: {
+    color: "#2196F3",
+    fontSize: 14,
+    fontWeight: "600",
   },
   content: {
     padding: 15,

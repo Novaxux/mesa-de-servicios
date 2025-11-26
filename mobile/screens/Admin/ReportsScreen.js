@@ -6,16 +6,20 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  Dimensions,
+  Linking,
 } from "react-native";
 import { usePermissions } from "../../hooks/usePermissions";
-import { reportService } from "../../services/api";
+import { reportService, getAuthToken } from "../../services/api";
 
 const ReportsScreen = ({ navigation }) => {
-  const { can } = usePermissions();
+  const { can, isAdmin } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [ticketStats, setTicketStats] = useState(null);
   const [slaStats, setSlaStats] = useState(null);
+  const [dateFrom] = useState(
+    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  );
+  const [dateTo] = useState(new Date().toISOString().split("T")[0]);
 
   useEffect(() => {
     if (!can.viewReports) {
@@ -28,20 +32,65 @@ const ReportsScreen = ({ navigation }) => {
   const loadReports = async () => {
     try {
       // Cargar estadísticas de tickets
-      const ticketResponse = await reportService.getTicketReport();
+      const ticketResponse = await reportService.getTicketReport(
+        dateFrom,
+        dateTo
+      );
       if (ticketResponse.success) {
-        setTicketStats(ticketResponse.data);
+        setTicketStats(ticketResponse.data.summary);
       }
 
       // Cargar estadísticas de SLA
-      const slaResponse = await reportService.getSLAReport();
+      const slaResponse = await reportService.getSLAReport(dateFrom, dateTo);
       if (slaResponse.success) {
-        setSlaStats(slaResponse.data);
+        setSlaStats(slaResponse.data.compliance);
       }
     } catch (error) {
       console.error("Error loading reports:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCSV = async (exportType) => {
+    try {
+      let url;
+      const token = getAuthToken();
+
+      switch (exportType) {
+        case "tickets":
+          url = await reportService.exportTicketsCSV(dateFrom, dateTo);
+          break;
+        case "sla":
+          url = await reportService.exportSLACSV(dateFrom, dateTo);
+          break;
+        case "technicians":
+          url = await reportService.exportTechniciansCSV(dateFrom, dateTo);
+          break;
+        case "incidents":
+          url = await reportService.exportIncidentsCSV(dateFrom, dateTo);
+          break;
+        case "feedback":
+          url = await reportService.exportFeedbackCSV();
+          break;
+        default:
+          return;
+      }
+
+      // Agregar token a la URL para autenticación
+      const urlWithAuth = `${url}&token=${token}`;
+
+      // Abrir URL en el navegador para descargar el CSV
+      const supported = await Linking.canOpenURL(urlWithAuth);
+      if (supported) {
+        await Linking.openURL(urlWithAuth);
+        window.alert("Descargando reporte CSV...");
+      } else {
+        window.alert("No se puede abrir el enlace de descarga");
+      }
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+      window.alert("Error al exportar el reporte");
     }
   };
 
@@ -143,6 +192,7 @@ const ReportsScreen = ({ navigation }) => {
         </View>
       </View>
 
+      {/* Sección de Reportes Detallados */}
       {can.viewTechnicianReports && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>👥 Reportes Adicionales</Text>
@@ -171,6 +221,55 @@ const ReportsScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Sección de Exportación CSV */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>📥 Exportar Reportes (CSV)</Text>
+        <Text style={styles.dateRangeText}>
+          Período: {dateFrom} a {dateTo}
+        </Text>
+
+        <TouchableOpacity
+          style={styles.exportButton}
+          onPress={() => handleExportCSV("tickets")}
+        >
+          <Text style={styles.exportButtonText}>📊 Exportar Tickets</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.exportButton}
+          onPress={() => handleExportCSV("sla")}
+        >
+          <Text style={styles.exportButtonText}>⏱️ Exportar SLA</Text>
+        </TouchableOpacity>
+
+        {isAdmin && (
+          <>
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={() => handleExportCSV("technicians")}
+            >
+              <Text style={styles.exportButtonText}>👥 Exportar Técnicos</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={() => handleExportCSV("incidents")}
+            >
+              <Text style={styles.exportButtonText}>
+                🔍 Exportar Incidentes
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={() => handleExportCSV("feedback")}
+            >
+              <Text style={styles.exportButtonText}>⭐ Exportar Feedback</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
     </ScrollView>
   );
 };
@@ -266,6 +365,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     fontWeight: "600",
+  },
+  dateRangeText: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 15,
+    fontStyle: "italic",
+  },
+  exportButton: {
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  exportButtonText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
 

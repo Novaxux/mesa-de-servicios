@@ -414,6 +414,302 @@ class ReportController {
       });
     }
   }
+
+  // ============ EXPORTACIÓN A CSV ============
+
+  async exportTicketsCSV(req, res) {
+    try {
+      const dateFrom =
+        req.query.date_from ||
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      const dateTo =
+        req.query.date_to || new Date().toISOString().split("T")[0];
+
+      const tickets = await query(
+        `
+        SELECT 
+          t.ticket_number,
+          t.title,
+          t.status,
+          p.name as priority,
+          c.name as category,
+          CONCAT(u.first_name, ' ', u.last_name) as created_by,
+          CONCAT(tech.first_name, ' ', tech.last_name) as assigned_to,
+          t.created_at,
+          t.resolution_time,
+          CASE WHEN t.sla_breached = 1 THEN 'Sí' ELSE 'No' END as sla_breached
+        FROM tickets t
+        LEFT JOIN priorities p ON t.priority_id = p.id
+        LEFT JOIN categories c ON t.category_id = c.id
+        LEFT JOIN users u ON t.created_by = u.id
+        LEFT JOIN users tech ON t.assigned_to = tech.id
+        WHERE DATE(t.created_at) BETWEEN ? AND ?
+        ORDER BY t.created_at DESC
+      `,
+        [dateFrom, dateTo]
+      );
+
+      // Generar CSV
+      const csv = generateCSV(tickets, [
+        "ticket_number",
+        "title",
+        "status",
+        "priority",
+        "category",
+        "created_by",
+        "assigned_to",
+        "created_at",
+        "resolution_time",
+        "sla_breached",
+      ]);
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reporte_tickets_${dateFrom}_${dateTo}.csv`
+      );
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al exportar reporte de tickets",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportSLACSV(req, res) {
+    try {
+      const dateFrom =
+        req.query.date_from ||
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      const dateTo =
+        req.query.date_to || new Date().toISOString().split("T")[0];
+
+      const slaData = await query(
+        `
+        SELECT 
+          t.ticket_number,
+          p.name as priority,
+          t.created_at,
+          t.response_time,
+          t.resolution_time,
+          t.sla_response_deadline,
+          t.sla_resolution_deadline,
+          CASE WHEN t.sla_breached = 1 THEN 'No Cumplido' ELSE 'Cumplido' END as sla_status,
+          TIMESTAMPDIFF(HOUR, t.created_at, t.response_time) as response_hours,
+          TIMESTAMPDIFF(HOUR, t.created_at, t.resolution_time) as resolution_hours
+        FROM tickets t
+        LEFT JOIN priorities p ON t.priority_id = p.id
+        WHERE DATE(t.created_at) BETWEEN ? AND ?
+        ORDER BY t.created_at DESC
+      `,
+        [dateFrom, dateTo]
+      );
+
+      const csv = generateCSV(slaData, [
+        "ticket_number",
+        "priority",
+        "created_at",
+        "response_time",
+        "resolution_time",
+        "sla_response_deadline",
+        "sla_resolution_deadline",
+        "sla_status",
+        "response_hours",
+        "resolution_hours",
+      ]);
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reporte_sla_${dateFrom}_${dateTo}.csv`
+      );
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al exportar reporte SLA",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportTechniciansCSV(req, res) {
+    try {
+      const dateFrom =
+        req.query.date_from ||
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      const dateTo =
+        req.query.date_to || new Date().toISOString().split("T")[0];
+
+      const techData = await query(
+        `
+        SELECT 
+          CONCAT(u.first_name, ' ', u.last_name) as technician,
+          t.specialty,
+          COUNT(tk.id) as total_tickets,
+          SUM(CASE WHEN tk.status = 'resolved' THEN 1 ELSE 0 END) as resolved_tickets,
+          SUM(CASE WHEN tk.status = 'closed' THEN 1 ELSE 0 END) as closed_tickets,
+          AVG(TIMESTAMPDIFF(HOUR, tk.created_at, tk.resolution_time)) as avg_resolution_hours,
+          AVG(f.rating) as avg_rating
+        FROM users u
+        INNER JOIN technicians t ON u.id = t.user_id
+        LEFT JOIN tickets tk ON u.id = tk.assigned_to 
+          AND DATE(tk.created_at) BETWEEN ? AND ?
+        LEFT JOIN feedback f ON tk.id = f.ticket_id
+        WHERE u.role = 'technician'
+        GROUP BY u.id, u.first_name, u.last_name, t.specialty
+        ORDER BY total_tickets DESC
+      `,
+        [dateFrom, dateTo]
+      );
+
+      const csv = generateCSV(techData, [
+        "technician",
+        "specialty",
+        "total_tickets",
+        "resolved_tickets",
+        "closed_tickets",
+        "avg_resolution_hours",
+        "avg_rating",
+      ]);
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reporte_tecnicos_${dateFrom}_${dateTo}.csv`
+      );
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al exportar reporte de técnicos",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportIncidentsCSV(req, res) {
+    try {
+      const dateFrom =
+        req.query.date_from ||
+        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+      const dateTo =
+        req.query.date_to || new Date().toISOString().split("T")[0];
+
+      const incidents = await query(
+        `
+        SELECT 
+          c.name as category,
+          it.name as incident_type,
+          t.department,
+          COUNT(*) as occurrence_count,
+          AVG(TIMESTAMPDIFF(HOUR, t.created_at, t.resolution_time)) as avg_resolution_hours
+        FROM tickets t
+        LEFT JOIN categories c ON t.category_id = c.id
+        LEFT JOIN incident_types it ON t.incident_type_id = it.id
+        WHERE DATE(t.created_at) BETWEEN ? AND ?
+        GROUP BY c.name, it.name, t.department
+        ORDER BY occurrence_count DESC
+      `,
+        [dateFrom, dateTo]
+      );
+
+      const csv = generateCSV(incidents, [
+        "category",
+        "incident_type",
+        "department",
+        "occurrence_count",
+        "avg_resolution_hours",
+      ]);
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reporte_incidentes_${dateFrom}_${dateTo}.csv`
+      );
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al exportar reporte de incidentes",
+        error: error.message,
+      });
+    }
+  }
+
+  async exportFeedbackCSV(req, res) {
+    try {
+      const feedbacks = await query(`
+        SELECT 
+          t.ticket_number,
+          CONCAT(u.first_name, ' ', u.last_name) as user,
+          CONCAT(tech.first_name, ' ', tech.last_name) as technician,
+          f.rating,
+          f.comment,
+          f.created_at
+        FROM feedback f
+        INNER JOIN tickets t ON f.ticket_id = t.id
+        LEFT JOIN users u ON f.user_id = u.id
+        LEFT JOIN users tech ON f.technician_id = tech.id
+        ORDER BY f.created_at DESC
+      `);
+
+      const csv = generateCSV(feedbacks, [
+        "ticket_number",
+        "user",
+        "technician",
+        "rating",
+        "comment",
+        "created_at",
+      ]);
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reporte_feedback.csv`
+      );
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al exportar reporte de feedback",
+        error: error.message,
+      });
+    }
+  }
+}
+
+// Función auxiliar para generar CSV (fuera de la clase)
+function generateCSV(data, columns) {
+  if (!data || data.length === 0) {
+    return "No hay datos disponibles";
+  }
+
+  // Encabezados
+  const headers = columns.map((col) => `"${col}"`).join(",");
+
+  // Filas
+  const rows = data.map((row) => {
+    return columns
+      .map((col) => {
+        const value = row[col];
+        if (value === null || value === undefined) return '""';
+        return `"${String(value).replace(/"/g, '""')}"`;
+      })
+      .join(",");
+  });
+
+  return `${headers}\n${rows.join("\n")}`;
 }
 
 module.exports = new ReportController();

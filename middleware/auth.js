@@ -5,7 +5,12 @@ const { query } = require("../config/database");
 // Middleware de autenticación
 const authenticate = async (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    // Intentar obtener token del header o query parameter (para descargas CSV)
+    let token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token && req.query.token) {
+      token = req.query.token;
+    }
 
     if (!token) {
       return res.status(401).json({
