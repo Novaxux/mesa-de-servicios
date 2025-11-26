@@ -9,10 +9,12 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { categoryService } from "../../services/api";
 
-const CategoriesScreen = ({ navigation }) => {
+const CategoriesScreen = () => {
+  const router = useRouter();
   const { can } = usePermissions();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ const CategoriesScreen = ({ navigation }) => {
   useEffect(() => {
     if (!can.viewCategories) {
       Alert.alert("Error", "No tienes permisos para ver categorías");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadCategories();

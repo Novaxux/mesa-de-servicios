@@ -9,13 +9,16 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { knowledgeBaseService } from "../../services/api";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-const KnowledgeBaseScreen = ({ navigation, route }) => {
+const KnowledgeBaseScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { user } = useAuth();
   const { can } = usePermissions();
   const [articles, setArticles] = useState([]);
@@ -27,15 +30,14 @@ const KnowledgeBaseScreen = ({ navigation, route }) => {
     loadArticles();
   }, [searchQuery]);
 
-  // Recargar cuando se reciba el parámetro refresh
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      if (route.params?.refresh) {
+  // Recargar cuando la pantalla recibe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      if (params?.refresh) {
         loadArticles();
       }
-    });
-    return unsubscribe;
-  }, [navigation, route.params?.refresh]);
+    }, [params?.refresh])
+  );
 
   const loadArticles = async () => {
     try {
@@ -62,7 +64,7 @@ const KnowledgeBaseScreen = ({ navigation, route }) => {
     <TouchableOpacity
       style={styles.articleCard}
       onPress={() =>
-        navigation.navigate("ArticleDetail", { articleId: item.id })
+        router.push({ pathname: '/article-detail', params: { articleId: item.id } })
       }
     >
       <Text style={styles.articleTitle}>{item.title}</Text>
@@ -94,7 +96,7 @@ const KnowledgeBaseScreen = ({ navigation, route }) => {
         {can.createArticle && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate("CreateArticle")}
+            onPress={() => router.push('/create-article')}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

@@ -8,11 +8,13 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { technicianService } from "../../services/api";
 
-const TechnicianDashboardScreen = ({ navigation }) => {
+const TechnicianDashboardScreen = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const { can, isTechnician } = usePermissions();
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ const TechnicianDashboardScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (!isTechnician) {
-      navigation.goBack();
+      router.back();
       return;
     }
     loadTechnicianData();
@@ -182,7 +184,7 @@ const TechnicianDashboardScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() =>
-            navigation.navigate("TicketList", { filter: "assigned" })
+            router.push({ pathname: '/(tabs)/tickets', params: { filter: "assigned" } })
           }
         >
           <Text style={styles.actionButtonText}>
@@ -192,7 +194,7 @@ const TechnicianDashboardScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate("KnowledgeBase")}
+          onPress={() => router.push('/(tabs)/knowledge')}
         >
           <Text style={styles.actionButtonText}>📚 Base de Conocimientos</Text>
         </TouchableOpacity>
@@ -200,7 +202,7 @@ const TechnicianDashboardScreen = ({ navigation }) => {
         {can.createArticle && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("CreateArticle")}
+            onPress={() => router.push('/create-article')}
           >
             <Text style={styles.actionButtonText}>✍️ Crear Artículo</Text>
           </TouchableOpacity>
@@ -209,7 +211,7 @@ const TechnicianDashboardScreen = ({ navigation }) => {
         {can.viewTechnicianFeedback && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("MyFeedback")}
+            onPress={() => router.push('/my-feedback')}
           >
             <Text style={styles.actionButtonText}>⭐ Ver Mi Feedback</Text>
           </TouchableOpacity>

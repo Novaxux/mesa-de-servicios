@@ -9,10 +9,13 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { feedbackService } from "../../services/api";
 
-const CreateFeedbackScreen = ({ route, navigation }) => {
-  const { ticketId, ticketNumber } = route.params;
+const CreateFeedbackScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { ticketId, ticketNumber } = params;
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -34,7 +37,7 @@ const CreateFeedbackScreen = ({ route, navigation }) => {
 
         if (result.success) {
           window.alert("¡Gracias por tu feedback!");
-          navigation.goBack();
+          router.back();
         } else {
           window.alert(result.message || "Error al enviar feedback");
         }

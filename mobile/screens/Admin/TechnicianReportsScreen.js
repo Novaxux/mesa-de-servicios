@@ -9,10 +9,12 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { reportService, getAuthToken } from "../../services/api";
 
-const TechnicianReportsScreen = ({ navigation }) => {
+const TechnicianReportsScreen = () => {
+  const router = useRouter();
   const { can } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -21,7 +23,7 @@ const TechnicianReportsScreen = ({ navigation }) => {
   useEffect(() => {
     if (!can.viewTechnicianReports) {
       alert("No tienes permisos para ver estos reportes");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadReports();

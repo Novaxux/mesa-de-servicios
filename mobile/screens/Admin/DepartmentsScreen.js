@@ -9,10 +9,12 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { departmentService } from "../../services/api";
 
-const DepartmentsScreen = ({ navigation }) => {
+const DepartmentsScreen = () => {
+  const router = useRouter();
   const { can, isAdmin } = usePermissions();
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ const DepartmentsScreen = ({ navigation }) => {
         Alert.alert(
           "Error",
           "No tienes permisos para gestionar departamentos",
-          [{ text: "OK", onPress: () => navigation.goBack() }]
+          [{ text: "OK", onPress: () => router.back() }]
         );
         return;
       }

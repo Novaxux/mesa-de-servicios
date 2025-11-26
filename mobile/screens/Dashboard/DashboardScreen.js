@@ -8,11 +8,13 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { ticketService } from "../../services/api";
 
-const DashboardScreen = ({ navigation }) => {
+const DashboardScreen = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const { can, isAdmin, isTechnician, isUser } = usePermissions();
   const [statistics, setStatistics] = useState(null);
@@ -108,14 +110,14 @@ const DashboardScreen = ({ navigation }) => {
             title="Total Tickets"
             value={statistics?.total}
             color="#2196F3"
-            onPress={() => navigation.navigate("TicketList")}
+            onPress={() => router.push('/(tabs)/tickets')}
           />
           <StatCard
             title="Abiertos"
             value={statistics?.open}
             color="#2196F3"
             onPress={() =>
-              navigation.navigate("TicketList", { filter: "open" })
+              router.push({ pathname: '/(tabs)/tickets', params: { filter: "open" } })
             }
           />
         </View>
@@ -126,7 +128,7 @@ const DashboardScreen = ({ navigation }) => {
             value={statistics?.in_progress}
             color="#FF9800"
             onPress={() =>
-              navigation.navigate("TicketList", { filter: "in_progress" })
+              router.push({ pathname: '/(tabs)/tickets', params: { filter: "in_progress" } })
             }
           />
           <StatCard
@@ -134,7 +136,7 @@ const DashboardScreen = ({ navigation }) => {
             value={statistics?.resolved}
             color="#4CAF50"
             onPress={() =>
-              navigation.navigate("TicketList", { filter: "resolved" })
+              router.push({ pathname: '/(tabs)/tickets', params: { filter: "resolved" } })
             }
           />
         </View>
@@ -146,7 +148,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.createTicket && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("CreateTicket")}
+            onPress={() => router.push('/create-ticket')}
           >
             <Text style={styles.actionButtonText}>➕ Crear Nuevo Ticket</Text>
           </TouchableOpacity>
@@ -155,7 +157,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.viewKnowledgeBase && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("KnowledgeBase")}
+            onPress={() => router.push('/(tabs)/knowledge')}
           >
             <Text style={styles.actionButtonText}>
               📚 Base de Conocimientos
@@ -167,7 +169,7 @@ const DashboardScreen = ({ navigation }) => {
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() =>
-              navigation.navigate("TicketList", { filter: "assigned" })
+              router.push({ pathname: '/(tabs)/tickets', params: { filter: "assigned" } })
             }
           >
             <Text style={styles.actionButtonText}>
@@ -179,7 +181,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.viewReports && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("Reports")}
+            onPress={() => router.push('/(tabs)/reports')}
           >
             <Text style={styles.actionButtonText}>📊 Reportes</Text>
           </TouchableOpacity>
@@ -188,7 +190,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.manageTechnicians && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("Technicians")}
+            onPress={() => router.push('/technicians')}
           >
             <Text style={styles.actionButtonText}>👥 Gestión de Técnicos</Text>
           </TouchableOpacity>
@@ -197,7 +199,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.manageUsers && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("Users")}
+            onPress={() => router.push('/users')}
           >
             <Text style={styles.actionButtonText}>👤 Gestión de Usuarios</Text>
           </TouchableOpacity>
@@ -206,7 +208,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.manageCategories && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("Categories")}
+            onPress={() => router.push('/categories')}
           >
             <Text style={styles.actionButtonText}>
               📁 Gestión de Categorías
@@ -217,7 +219,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.manageCategories && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("Departments")}
+            onPress={() => router.push('/departments')}
           >
             <Text style={styles.actionButtonText}>
               🏢 Gestión de Departamentos
@@ -228,7 +230,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.manageSLA && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("SLAConfig")}
+            onPress={() => router.push('/sla-config')}
           >
             <Text style={styles.actionButtonText}>⚙️ Configuración SLA</Text>
           </TouchableOpacity>
@@ -237,7 +239,7 @@ const DashboardScreen = ({ navigation }) => {
         {can.viewNotifications && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => navigation.navigate("Notifications")}
+            onPress={() => router.push('/notifications')}
           >
             <Text style={styles.actionButtonText}>🔔 Notificaciones</Text>
           </TouchableOpacity>

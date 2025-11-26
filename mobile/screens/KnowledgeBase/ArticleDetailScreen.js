@@ -7,12 +7,15 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { knowledgeBaseService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 
-const ArticleDetailScreen = ({ route, navigation }) => {
-  const { articleId } = route.params;
+const ArticleDetailScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { articleId } = params;
   const { user } = useAuth();
   const { isAdmin } = usePermissions();
   const [article, setArticle] = useState(null);
@@ -33,7 +36,7 @@ const ArticleDetailScreen = ({ route, navigation }) => {
     } catch (error) {
       console.error("Error loading article:", error);
       window.alert("Error al cargar el artículo");
-      navigation.goBack();
+      router.back();
     } finally {
       setLoading(false);
     }
@@ -69,7 +72,7 @@ const ArticleDetailScreen = ({ route, navigation }) => {
       const response = await knowledgeBaseService.delete(articleId);
       if (response.success) {
         window.alert("Artículo eliminado exitosamente");
-        navigation.goBack();
+        router.back();
       }
     } catch (error) {
       console.error("Error deleting article:", error);

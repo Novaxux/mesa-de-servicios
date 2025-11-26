@@ -9,14 +9,17 @@ import {
   ActivityIndicator,
   Picker,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 import { ticketService, categoryService } from "../../services/api";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 
-const CreateTicketScreen = ({ navigation, route }) => {
+const CreateTicketScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { user } = useAuth();
-  const ticketId = route?.params?.ticketId;
+  const ticketId = params?.ticketId;
   const isEditMode = !!ticketId;
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -178,7 +181,7 @@ const CreateTicketScreen = ({ navigation, route }) => {
         }
 
         alert(message);
-        navigation.goBack();
+        router.back();
       } else {
         alert(result.message || "Error al crear ticket");
       }

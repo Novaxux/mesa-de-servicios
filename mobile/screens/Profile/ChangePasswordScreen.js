@@ -8,10 +8,12 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/api";
 
-const ChangePasswordScreen = ({ navigation }) => {
+const ChangePasswordScreen = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     currentPassword: "",

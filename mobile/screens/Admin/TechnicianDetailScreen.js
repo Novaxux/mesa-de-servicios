@@ -9,19 +9,22 @@ import {
   Alert,
   Switch,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { technicianService } from "../../services/api";
 
-const TechnicianDetailScreen = ({ navigation, route }) => {
+const TechnicianDetailScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { can } = usePermissions();
-  const technicianId = route.params?.technicianId;
+  const technicianId = params?.technicianId;
   const [loading, setLoading] = useState(true);
   const [technician, setTechnician] = useState(null);
 
   useEffect(() => {
     if (!technicianId) {
       Alert.alert("Error", "ID de técnico no válido");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadTechnician();
@@ -35,12 +38,12 @@ const TechnicianDetailScreen = ({ navigation, route }) => {
         setTechnician(response.data.technician);
       } else {
         Alert.alert("Error", "No se pudo cargar el técnico");
-        navigation.goBack();
+        router.back();
       }
     } catch (error) {
       console.error("Error loading technician:", error);
       Alert.alert("Error", "No se pudo cargar el técnico");
-      navigation.goBack();
+      router.back();
     } finally {
       setLoading(false);
     }

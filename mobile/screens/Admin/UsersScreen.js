@@ -9,10 +9,12 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { userService } from "../../services/api";
 
-const UsersScreen = ({ navigation }) => {
+const UsersScreen = () => {
+  const router = useRouter();
   const { can } = usePermissions();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ const UsersScreen = ({ navigation }) => {
   useEffect(() => {
     if (!can.viewAllUsers) {
       Alert.alert("Error", "No tienes permisos para ver esta sección");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadUsers();
@@ -107,7 +109,7 @@ const UsersScreen = ({ navigation }) => {
   const renderUser = ({ item }) => (
     <TouchableOpacity
       style={styles.userCard}
-      onPress={() => navigation.navigate("UserDetail", { userId: item.id })}
+      onPress={() => router.push({ pathname: '/user-detail', params: { userId: item.id } })}
     >
       <View style={styles.userHeader}>
         <Text style={styles.userName}>
@@ -166,7 +168,7 @@ const UsersScreen = ({ navigation }) => {
         {can.createUser && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate("CreateUser")}
+            onPress={() => router.push('/create-user')}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

@@ -9,13 +9,16 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { knowledgeBaseService, categoryService } from "../../services/api";
 import { Picker } from "@react-native-picker/picker";
 
-const CreateArticleScreen = ({ navigation, route }) => {
+const CreateArticleScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { can } = usePermissions();
-  const articleId = route?.params?.articleId;
+  const articleId = params?.articleId;
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
@@ -28,7 +31,7 @@ const CreateArticleScreen = ({ navigation, route }) => {
   React.useEffect(() => {
     if (!can.createArticle && !articleId) {
       Alert.alert("Error", "No tienes permisos para crear artículos");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadCategories();
@@ -110,10 +113,7 @@ const CreateArticleScreen = ({ navigation, route }) => {
               text: "OK",
               onPress: () => {
                 // Navegar de vuelta y forzar recarga
-                navigation.navigate("MainTabs", {
-                  screen: "KnowledgeBase",
-                  params: { refresh: Date.now() },
-                });
+                router.push({ pathname: '/(tabs)/knowledge', params: { refresh: Date.now() } });
               },
             },
           ]

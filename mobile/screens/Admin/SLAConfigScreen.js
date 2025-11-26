@@ -9,10 +9,12 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { slaService } from "../../services/api";
 
-const SLAConfigScreen = ({ navigation }) => {
+const SLAConfigScreen = () => {
+  const router = useRouter();
   const { can } = usePermissions();
   const [loading, setLoading] = useState(false);
   const [configs, setConfigs] = useState([
@@ -53,7 +55,7 @@ const SLAConfigScreen = ({ navigation }) => {
   React.useEffect(() => {
     if (!can.viewSLAConfig) {
       Alert.alert("Error", "No tienes permisos para ver la configuración SLA");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadSLAConfig();

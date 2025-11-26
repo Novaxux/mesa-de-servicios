@@ -8,9 +8,11 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { authService } from '../../services/api';
 
-const ForgotPasswordScreen = ({ navigation }) => {
+const ForgotPasswordScreen = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +28,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
       Alert.alert(
         'Éxito',
         'Si el email existe, se enviará un enlace de recuperación',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
+        [{ text: 'OK', onPress: () => router.back() }]
       );
     } catch (error) {
       Alert.alert('Error', 'Error de conexión. Verifica tu conexión a internet.');

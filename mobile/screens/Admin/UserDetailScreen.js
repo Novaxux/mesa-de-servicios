@@ -10,12 +10,15 @@ import {
   Switch,
   Modal,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { userService, departmentService } from "../../services/api";
 
-const UserDetailScreen = ({ navigation, route }) => {
+const UserDetailScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { can } = usePermissions();
-  const userId = route.params?.userId;
+  const userId = params?.userId;
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [departments, setDepartments] = useState([]);
@@ -25,7 +28,7 @@ const UserDetailScreen = ({ navigation, route }) => {
     const initScreen = async () => {
       if (!userId) {
         Alert.alert("Error", "ID de usuario no válido", [
-          { text: "OK", onPress: () => navigation.goBack() },
+          { text: "OK", onPress: () => router.back() },
         ]);
         return;
       }
@@ -46,7 +49,7 @@ const UserDetailScreen = ({ navigation, route }) => {
         setUser(userResponse.data.user);
       } else {
         Alert.alert("Error", "No se pudo cargar el usuario", [
-          { text: "OK", onPress: () => navigation.goBack() },
+          { text: "OK", onPress: () => router.back() },
         ]);
         return;
       }
@@ -59,7 +62,7 @@ const UserDetailScreen = ({ navigation, route }) => {
     } catch (error) {
       console.error("Error loading data:", error);
       Alert.alert("Error", "No se pudo cargar la información", [
-        { text: "OK", onPress: () => navigation.goBack() },
+        { text: "OK", onPress: () => router.back() },
       ]);
     } finally {
       setLoading(false);
@@ -135,7 +138,7 @@ const UserDetailScreen = ({ navigation, route }) => {
                 Alert.alert("Éxito", "Usuario eliminado correctamente", [
                   {
                     text: "OK",
-                    onPress: () => navigation.goBack(),
+                    onPress: () => router.back(),
                   },
                 ]);
               } else {

@@ -10,9 +10,11 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -76,7 +78,7 @@ const LoginScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.forgotPassword}
-            onPress={() => navigation.navigate('ForgotPassword')}
+            onPress={() => router.push('/(auth)/forgot-password')}
           >
             <Text style={styles.forgotPasswordText}>
               ¿Olvidaste tu contraseña?
@@ -97,7 +99,7 @@ const LoginScreen = ({ navigation }) => {
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>¿No tienes cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
               <Text style={styles.registerLink}>Regístrate</Text>
             </TouchableOpacity>
           </View>

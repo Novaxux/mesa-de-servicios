@@ -8,9 +8,11 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 
-const EditProfileScreen = ({ navigation }) => {
+const EditProfileScreen = () => {
+  const router = useRouter();
   const { user, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,7 +48,7 @@ const EditProfileScreen = ({ navigation }) => {
       const result = await updateUser(updateData);
       if (result.success) {
         alert("Perfil actualizado exitosamente");
-        navigation.goBack();
+        router.back();
       } else {
         alert(result.message || "Error al actualizar perfil");
       }

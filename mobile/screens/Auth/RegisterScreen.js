@@ -11,9 +11,11 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -54,8 +56,7 @@ const RegisterScreen = ({ navigation }) => {
       setLoading(false);
 
       if (result.success) {
-        // Navegar directamente en web
-        navigation.navigate("Login");
+        router.push('/(auth)/login');
       } else {
         window.alert(result.message || "Error al registrar");
       }
@@ -164,7 +165,7 @@ const RegisterScreen = ({ navigation }) => {
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
               <Text style={styles.loginLink}>Inicia sesión</Text>
             </TouchableOpacity>
           </View>

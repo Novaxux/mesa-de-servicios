@@ -9,11 +9,13 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { Picker } from "@react-native-picker/picker";
 import { usePermissions } from "../../hooks/usePermissions";
 import { authService } from "../../services/api";
 
-const CreateUserScreen = ({ navigation }) => {
+const CreateUserScreen = () => {
+  const router = useRouter();
   const { can } = usePermissions();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,7 +32,7 @@ const CreateUserScreen = ({ navigation }) => {
   React.useEffect(() => {
     if (!can.createUser) {
       Alert.alert("Error", "No tienes permisos para crear usuarios");
-      navigation.goBack();
+      router.back();
       return;
     }
   }, []);
@@ -100,7 +102,7 @@ const CreateUserScreen = ({ navigation }) => {
         Alert.alert("Éxito", "Usuario creado correctamente", [
           {
             text: "OK",
-            onPress: () => navigation.goBack(),
+            onPress: () => router.back(),
           },
         ]);
       } else {

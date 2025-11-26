@@ -8,11 +8,13 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { notificationService } from "../../services/api";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-const NotificationsScreen = ({ navigation }) => {
+const NotificationsScreen = () => {
+  const router = useRouter();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -69,15 +71,15 @@ const NotificationsScreen = ({ navigation }) => {
 
     // Navegar según el tipo de notificación
     if (notification.type === "feedback_request" && notification.ticket_id) {
-      navigation.navigate("CreateFeedback", {
+      router.push({ pathname: '/create-feedback', params: {
         ticketId: notification.ticket_id,
         ticketNumber:
           notification.ticket_number || `#${notification.ticket_id}`,
-      });
+      }});
     } else if (notification.ticket_id) {
-      navigation.navigate("TicketDetail", {
+      router.push({ pathname: '/ticket-detail', params: {
         ticketId: notification.ticket_id,
-      });
+      }});
     }
   };
 

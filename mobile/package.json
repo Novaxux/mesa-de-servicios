@@ -1,7 +1,7 @@
 {
   "name": "mesa-servicios-mobile",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -11,14 +11,14 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-picker/picker": "2.11.1",
-    "@react-navigation/bottom-tabs": "^6.5.11",
-    "@react-navigation/native": "^6.1.9",
-    "@react-navigation/stack": "^6.3.20",
     "axios": "^1.6.2",
     "date-fns": "^2.30.0",
     "expo": "^54.0.0",
+    "expo-constants": "~18.0.10",
     "expo-document-picker": "~14.0.7",
     "expo-image-picker": "~17.0.8",
+    "expo-linking": "~8.0.9",
+    "expo-router": "~6.0.15",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
     "react-dom": "19.1.0",

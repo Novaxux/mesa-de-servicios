@@ -9,13 +9,16 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { ticketService } from "../../services/api";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-const TicketListScreen = ({ navigation, route }) => {
+const TicketListScreen = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { user } = useAuth();
   const { can, isAdmin, isTechnician, isUser } = usePermissions();
   const [tickets, setTickets] = useState([]);
@@ -23,7 +26,7 @@ const TicketListScreen = ({ navigation, route }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [showClosed, setShowClosed] = useState(false);
   const [filters, setFilters] = useState({
-    status: route?.params?.filter || null,
+    status: params?.filter || null,
     priority_id: null,
   });
 
@@ -102,7 +105,7 @@ const TicketListScreen = ({ navigation, route }) => {
   const renderTicket = ({ item }) => (
     <TouchableOpacity
       style={styles.ticketCard}
-      onPress={() => navigation.navigate("TicketDetail", { ticketId: item.id })}
+      onPress={() => router.push({ pathname: '/ticket-detail', params: { ticketId: item.id } })}
     >
       <View style={styles.ticketHeader}>
         <Text style={styles.ticketNumber}>{item.ticket_number}</Text>
@@ -177,7 +180,7 @@ const TicketListScreen = ({ navigation, route }) => {
         {can.createTicket && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate("CreateTicket")}
+            onPress={() => router.push('/create-ticket')}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { useAuth } from "../../context/AuthContext";
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = () => {
+  const router = useRouter();
   const { user, logout, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
 

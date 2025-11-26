@@ -10,10 +10,12 @@ import {
   ActivityIndicator,
   Switch,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { technicianService } from "../../services/api";
 
-const TechniciansScreen = ({ navigation }) => {
+const TechniciansScreen = () => {
+  const router = useRouter();
   const { can } = usePermissions();
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ const TechniciansScreen = ({ navigation }) => {
   useEffect(() => {
     if (!can.viewTechnicians) {
       Alert.alert("Error", "No tienes permisos para ver técnicos");
-      navigation.goBack();
+      router.back();
       return;
     }
     loadTechnicians();
@@ -60,7 +62,7 @@ const TechniciansScreen = ({ navigation }) => {
   };
 
   const handleViewDetails = (technician) => {
-    navigation.navigate("TechnicianDetail", { technicianId: technician.id });
+    router.push({ pathname: '/technician-detail', params: { technicianId: technician.id } });
   };
 
   if (loading) {
@@ -81,7 +83,7 @@ const TechniciansScreen = ({ navigation }) => {
         {can.createTechnician && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate("CreateTechnician")}
+            onPress={() => router.push('/create-technician')}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

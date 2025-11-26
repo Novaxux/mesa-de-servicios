@@ -8,10 +8,12 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+import { useRouter } from 'expo-router';
 import { usePermissions } from "../../hooks/usePermissions";
 import { reportService, getAuthToken } from "../../services/api";
 
-const ReportsScreen = ({ navigation }) => {
+const ReportsScreen = () => {
+  const router = useRouter();
   const { can, isAdmin } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [ticketStats, setTicketStats] = useState(null);
@@ -23,7 +25,7 @@ const ReportsScreen = ({ navigation }) => {
 
   useEffect(() => {
     if (!can.viewReports) {
-      navigation.goBack();
+      router.back();
       return;
     }
     loadReports();
@@ -199,14 +201,14 @@ const ReportsScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => navigation.navigate("TechnicianReports")}
+            onPress={() => router.push('/technician-reports')}
           >
             <Text style={styles.reportButtonText}>📈 Reporte de Técnicos</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => navigation.navigate("IncidentReports")}
+            onPress={() => router.push('/incident-reports')}
           >
             <Text style={styles.reportButtonText}>
               🔍 Reporte de Incidentes
@@ -215,7 +217,7 @@ const ReportsScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => navigation.navigate("FeedbackReports")}
+            onPress={() => router.push('/feedback-reports')}
           >
             <Text style={styles.reportButtonText}>⭐ Reporte de Feedback</Text>
           </TouchableOpacity>
