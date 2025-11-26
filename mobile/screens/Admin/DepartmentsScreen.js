@@ -93,35 +93,48 @@ const DepartmentsScreen = ({ navigation }) => {
     setShowForm(true);
   };
 
-  const handleDelete = (departmentId) => {
-    Alert.alert("Confirmar", "¿Estás seguro de eliminar este departamento?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Eliminar",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const response = await departmentService.delete(departmentId);
-            if (response.success) {
-              Alert.alert("Éxito", "Departamento eliminado");
-              loadDepartments();
-            } else {
-              Alert.alert(
-                "Error",
-                response.message || "No se pudo eliminar el departamento"
-              );
-            }
-          } catch (error) {
-            console.error("Error deleting department:", error);
-            const errorMsg =
-              error.response?.data?.message ||
-              error.message ||
-              "No se pudo eliminar el departamento";
-            Alert.alert("Error", errorMsg);
-          }
-        },
-      },
-    ]);
+  const handleDelete = async (department) => {
+    console.log("handleDelete called with:", department);
+    
+    // Prevenir eliminación de "Sin Asignar" en el frontend también
+    if (department.name === "Sin Asignar") {
+      Alert.alert(
+        "No permitido",
+        "El departamento 'Sin Asignar' no se puede eliminar"
+      );
+      return;
+    }
+
+    // Confirmación directa compatible con Web
+    const confirmed = confirm(`¿Estás seguro de eliminar el departamento "${department.name}"?`);
+    if (!confirmed) {
+      console.log("Delete cancelled by user");
+      return;
+    }
+
+    try {
+      console.log("Calling departmentService.delete with id:", department.id);
+      const response = await departmentService.delete(department.id);
+      console.log("Delete response:", response);
+      
+      if (response.success) {
+        Alert.alert("Éxito", "Departamento eliminado correctamente");
+        loadDepartments();
+      } else {
+        Alert.alert(
+          "Error",
+          response.message || "No se pudo eliminar el departamento"
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting department:", error);
+      console.error("Error details:", error.response?.data);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "No se pudo eliminar el departamento";
+      Alert.alert("Error", errorMsg);
+    }
   };
 
   // Funcionalidad de ver usuarios por departamento pendiente
@@ -248,7 +261,7 @@ const DepartmentsScreen = ({ navigation }) => {
                 {department.name !== "Sin Asignar" && (
                   <TouchableOpacity
                     style={styles.actionButton}
-                    onPress={() => handleDelete(department.id)}
+                    onPress={() => handleDelete(department)}
                   >
                     <Text style={styles.deleteButtonText}>🗑️</Text>
                   </TouchableOpacity>

@@ -90,40 +90,44 @@ const CategoriesScreen = ({ navigation }) => {
     setShowForm(true);
   };
 
-  const handleDelete = (categoryId) => {
+  const handleDelete = async (categoryId) => {
+    console.log("handleDelete called with categoryId:", categoryId);
+    
     if (!can.deleteCategory) {
       Alert.alert("Error", "No tienes permisos para eliminar categorías");
       return;
     }
 
-    Alert.alert("Confirmar", "¿Estás seguro de eliminar esta categoría?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Eliminar",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const response = await categoryService.delete(categoryId);
-            if (response.success) {
-              Alert.alert("Éxito", "Categoría eliminada");
-              loadCategories();
-            } else {
-              Alert.alert(
-                "Error",
-                response.message || "No se pudo eliminar la categoría"
-              );
-            }
-          } catch (error) {
-            console.error("Error deleting category:", error);
-            const errorMsg =
-              error.response?.data?.message ||
-              error.message ||
-              "No se pudo eliminar la categoría";
-            Alert.alert("Error", errorMsg);
-          }
-        },
-      },
-    ]);
+    // Confirmación directa compatible con Web
+    const confirmed = confirm("¿Estás seguro de eliminar esta categoría?");
+    if (!confirmed) {
+      console.log("Delete cancelled by user");
+      return;
+    }
+
+    try {
+      console.log("Calling categoryService.delete with id:", categoryId);
+      const response = await categoryService.delete(categoryId);
+      console.log("Delete response:", response);
+      
+      if (response.success) {
+        Alert.alert("Éxito", "Categoría eliminada correctamente");
+        loadCategories();
+      } else {
+        Alert.alert(
+          "Error",
+          response.message || "No se pudo eliminar la categoría"
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      console.error("Error details:", error.response?.data);
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "No se pudo eliminar la categoría";
+      Alert.alert("Error", errorMsg);
+    }
   };
 
   if (loading) {

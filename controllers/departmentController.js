@@ -162,6 +162,14 @@ class DepartmentController {
         });
       }
 
+      // Prevenir eliminación del departamento "Sin Asignar"
+      if (department.name === "Sin Asignar") {
+        return res.status(400).json({
+          success: false,
+          message: "No se puede eliminar el departamento 'Sin Asignar'",
+        });
+      }
+
       // Verificar si tiene usuarios asignados
       const users = await Department.getUsers(id);
       if (users.length > 0) {
