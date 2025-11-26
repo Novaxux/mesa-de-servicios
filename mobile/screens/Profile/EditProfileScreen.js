@@ -8,7 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 
 const EditProfileScreen = () => {

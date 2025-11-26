@@ -10,7 +10,7 @@ import {
   Switch,
   Modal,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { userService, departmentService } from "../../services/api";
 

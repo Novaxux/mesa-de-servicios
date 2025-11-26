@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { feedbackService } from "../../services/api";
 
 const CreateFeedbackScreen = () => {
@@ -43,7 +43,9 @@ const CreateFeedbackScreen = () => {
         }
       } catch (error) {
         console.error("Feedback error:", error);
-        const errorMessage = error.response?.data?.message || "Error de conexión. Intenta nuevamente.";
+        const errorMessage =
+          error.response?.data?.message ||
+          "Error de conexión. Intenta nuevamente.";
         window.alert(errorMessage);
       } finally {
         setSubmitting(false);

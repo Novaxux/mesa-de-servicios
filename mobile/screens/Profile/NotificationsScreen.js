@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { notificationService } from "../../services/api";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -71,15 +71,21 @@ const NotificationsScreen = () => {
 
     // Navegar según el tipo de notificación
     if (notification.type === "feedback_request" && notification.ticket_id) {
-      router.push({ pathname: '/create-feedback', params: {
-        ticketId: notification.ticket_id,
-        ticketNumber:
-          notification.ticket_number || `#${notification.ticket_id}`,
-      }});
+      router.push({
+        pathname: "/create-feedback",
+        params: {
+          ticketId: notification.ticket_id,
+          ticketNumber:
+            notification.ticket_number || `#${notification.ticket_id}`,
+        },
+      });
     } else if (notification.ticket_id) {
-      router.push({ pathname: '/ticket-detail', params: {
-        ticketId: notification.ticket_id,
-      }});
+      router.push({
+        pathname: "/ticket-detail",
+        params: {
+          ticketId: notification.ticket_id,
+        },
+      });
     }
   };
 

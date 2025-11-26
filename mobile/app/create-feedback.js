@@ -1,2 +1,2 @@
-import CreateFeedbackScreen from '../screens/Tickets/CreateFeedbackScreen';
+import CreateFeedbackScreen from "../screens/Tickets/CreateFeedbackScreen";
 export default CreateFeedbackScreen;

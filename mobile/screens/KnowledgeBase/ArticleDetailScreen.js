@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { knowledgeBaseService } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -58,13 +58,19 @@ const ArticleDetailScreen = () => {
       }
     } catch (error) {
       console.error("Error marking as helpful:", error);
-      const errorMessage = error.response?.data?.message || "Ya has marcado este artículo como útil";
+      const errorMessage =
+        error.response?.data?.message ||
+        "Ya has marcado este artículo como útil";
       window.alert(errorMessage);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("¿Estás seguro de eliminar este artículo? Esta acción no se puede deshacer.")) {
+    if (
+      !window.confirm(
+        "¿Estás seguro de eliminar este artículo? Esta acción no se puede deshacer."
+      )
+    ) {
       return;
     }
 
@@ -76,7 +82,8 @@ const ArticleDetailScreen = () => {
       }
     } catch (error) {
       console.error("Error deleting article:", error);
-      const errorMessage = error.response?.data?.message || "Error al eliminar el artículo";
+      const errorMessage =
+        error.response?.data?.message || "Error al eliminar el artículo";
       window.alert(errorMessage);
     }
   };
@@ -145,27 +152,26 @@ const ArticleDetailScreen = () => {
         <TouchableOpacity
           style={[
             styles.helpfulButton,
-            hasLiked && styles.helpfulButtonDisabled
+            hasLiked && styles.helpfulButtonDisabled,
           ]}
           onPress={handleMarkHelpful}
           disabled={hasLiked}
         >
-          <Text style={[
-            styles.helpfulButtonText,
-            hasLiked && styles.helpfulButtonTextDisabled
-          ]}>
-            {hasLiked ? "✓ Ya marcaste como útil" : "👍 ¿Te fue útil este artículo?"}
+          <Text
+            style={[
+              styles.helpfulButtonText,
+              hasLiked && styles.helpfulButtonTextDisabled,
+            ]}
+          >
+            {hasLiked
+              ? "✓ Ya marcaste como útil"
+              : "👍 ¿Te fue útil este artículo?"}
           </Text>
         </TouchableOpacity>
 
         {isAdmin && (
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={handleDelete}
-          >
-            <Text style={styles.deleteButtonText}>
-              🗑️ Eliminar Artículo
-            </Text>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>🗑️ Eliminar Artículo</Text>
           </TouchableOpacity>
         )}
 

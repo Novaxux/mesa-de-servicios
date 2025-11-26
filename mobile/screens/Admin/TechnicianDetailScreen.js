@@ -9,7 +9,7 @@ import {
   Alert,
   Switch,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { technicianService } from "../../services/api";
 

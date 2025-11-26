@@ -9,7 +9,7 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { ticketService } from "../../services/api";
@@ -352,7 +352,10 @@ const TicketDetailScreen = () => {
           <TouchableOpacity
             style={styles.editButton}
             onPress={() =>
-              router.push({ pathname: '/create-ticket', params: { ticketId: ticket.id } })
+              router.push({
+                pathname: "/create-ticket",
+                params: { ticketId: ticket.id },
+              })
             }
           >
             <Text style={styles.editButtonText}>✏️ Editar Ticket</Text>
@@ -364,10 +367,13 @@ const TicketDetailScreen = () => {
             <TouchableOpacity
               style={styles.feedbackButton}
               onPress={() =>
-                router.push({ pathname: '/create-feedback', params: {
-                  ticketId: ticket.id,
-                  ticketNumber: ticket.ticket_number,
-                }})
+                router.push({
+                  pathname: "/create-feedback",
+                  params: {
+                    ticketId: ticket.id,
+                    ticketNumber: ticket.ticket_number,
+                  },
+                })
               }
             >
               <Text style={styles.feedbackButtonText}>

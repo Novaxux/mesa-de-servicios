@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { ticketService } from "../../services/api";
@@ -51,20 +51,20 @@ const TicketListScreen = () => {
       const response = await ticketService.getAll(queryFilters);
       if (response.success) {
         let filteredTickets = response.data.tickets || [];
-        
+
         // Filtrar según la vista (activos o cerrados)
         if (showClosed) {
           // Mostrar solo cerrados y resueltos
           filteredTickets = filteredTickets.filter(
-            t => t.status === 'closed' || t.status === 'resolved'
+            (t) => t.status === "closed" || t.status === "resolved"
           );
         } else {
           // Mostrar solo activos (open, in_progress, pending)
           filteredTickets = filteredTickets.filter(
-            t => t.status !== 'closed' && t.status !== 'resolved'
+            (t) => t.status !== "closed" && t.status !== "resolved"
           );
         }
-        
+
         setTickets(filteredTickets);
       }
     } catch (error) {
@@ -105,7 +105,12 @@ const TicketListScreen = () => {
   const renderTicket = ({ item }) => (
     <TouchableOpacity
       style={styles.ticketCard}
-      onPress={() => router.push({ pathname: '/ticket-detail', params: { ticketId: item.id } })}
+      onPress={() =>
+        router.push({
+          pathname: "/ticket-detail",
+          params: { ticketId: item.id },
+        })
+      }
     >
       <View style={styles.ticketHeader}>
         <Text style={styles.ticketNumber}>{item.ticket_number}</Text>
@@ -180,7 +185,7 @@ const TicketListScreen = () => {
         {can.createTicket && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.push('/create-ticket')}
+            onPress={() => router.push("/create-ticket")}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>
@@ -190,10 +195,15 @@ const TicketListScreen = () => {
       {/* Toggle between Active and Closed tickets */}
       <View style={styles.toggleContainer}>
         <TouchableOpacity
-          style={[styles.toggleButton, !showClosed && styles.toggleButtonActive]}
+          style={[
+            styles.toggleButton,
+            !showClosed && styles.toggleButtonActive,
+          ]}
           onPress={() => setShowClosed(false)}
         >
-          <Text style={[styles.toggleText, !showClosed && styles.toggleTextActive]}>
+          <Text
+            style={[styles.toggleText, !showClosed && styles.toggleTextActive]}
+          >
             Activos
           </Text>
         </TouchableOpacity>
@@ -201,7 +211,9 @@ const TicketListScreen = () => {
           style={[styles.toggleButton, showClosed && styles.toggleButtonActive]}
           onPress={() => setShowClosed(true)}
         >
-          <Text style={[styles.toggleText, showClosed && styles.toggleTextActive]}>
+          <Text
+            style={[styles.toggleText, showClosed && styles.toggleTextActive]}
+          >
             Historial
           </Text>
         </TouchableOpacity>

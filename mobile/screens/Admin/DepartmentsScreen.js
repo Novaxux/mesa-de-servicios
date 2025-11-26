@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { departmentService } from "../../services/api";
 
@@ -97,7 +97,7 @@ const DepartmentsScreen = () => {
 
   const handleDelete = async (department) => {
     console.log("handleDelete called with:", department);
-    
+
     // Prevenir eliminación de "Sin Asignar" en el frontend también
     if (department.name === "Sin Asignar") {
       Alert.alert(
@@ -108,7 +108,9 @@ const DepartmentsScreen = () => {
     }
 
     // Confirmación directa compatible con Web
-    const confirmed = confirm(`¿Estás seguro de eliminar el departamento "${department.name}"?`);
+    const confirmed = confirm(
+      `¿Estás seguro de eliminar el departamento "${department.name}"?`
+    );
     if (!confirmed) {
       console.log("Delete cancelled by user");
       return;
@@ -118,7 +120,7 @@ const DepartmentsScreen = () => {
       console.log("Calling departmentService.delete with id:", department.id);
       const response = await departmentService.delete(department.id);
       console.log("Delete response:", response);
-      
+
       if (response.success) {
         Alert.alert("Éxito", "Departamento eliminado correctamente");
         loadDepartments();

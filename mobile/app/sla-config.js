@@ -1,2 +1,2 @@
-import SLAConfigScreen from '../screens/Admin/SLAConfigScreen';
+import SLAConfigScreen from "../screens/Admin/SLAConfigScreen";
 export default SLAConfigScreen;

@@ -8,7 +8,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { technicianService } from "../../services/api";
@@ -184,7 +184,10 @@ const TechnicianDashboardScreen = () => {
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() =>
-            router.push({ pathname: '/(tabs)/tickets', params: { filter: "assigned" } })
+            router.push({
+              pathname: "/(tabs)/tickets",
+              params: { filter: "assigned" },
+            })
           }
         >
           <Text style={styles.actionButtonText}>
@@ -194,7 +197,7 @@ const TechnicianDashboardScreen = () => {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => router.push('/(tabs)/knowledge')}
+          onPress={() => router.push("/(tabs)/knowledge")}
         >
           <Text style={styles.actionButtonText}>📚 Base de Conocimientos</Text>
         </TouchableOpacity>
@@ -202,7 +205,7 @@ const TechnicianDashboardScreen = () => {
         {can.createArticle && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/create-article')}
+            onPress={() => router.push("/create-article")}
           >
             <Text style={styles.actionButtonText}>✍️ Crear Artículo</Text>
           </TouchableOpacity>
@@ -211,7 +214,7 @@ const TechnicianDashboardScreen = () => {
         {can.viewTechnicianFeedback && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/my-feedback')}
+            onPress={() => router.push("/my-feedback")}
           >
             <Text style={styles.actionButtonText}>⭐ Ver Mi Feedback</Text>
           </TouchableOpacity>

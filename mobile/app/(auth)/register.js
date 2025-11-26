@@ -1,2 +1,2 @@
-import RegisterScreen from '../../screens/Auth/RegisterScreen';
+import RegisterScreen from "../../screens/Auth/RegisterScreen";
 export default RegisterScreen;

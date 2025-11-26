@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Switch,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { technicianService } from "../../services/api";
 
@@ -62,7 +62,10 @@ const TechniciansScreen = () => {
   };
 
   const handleViewDetails = (technician) => {
-    router.push({ pathname: '/technician-detail', params: { technicianId: technician.id } });
+    router.push({
+      pathname: "/technician-detail",
+      params: { technicianId: technician.id },
+    });
   };
 
   if (loading) {
@@ -83,7 +86,7 @@ const TechniciansScreen = () => {
         {can.createTechnician && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.push('/create-technician')}
+            onPress={() => router.push("/create-technician")}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

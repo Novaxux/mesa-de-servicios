@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { knowledgeBaseService } from "../../services/api";
@@ -64,7 +64,10 @@ const KnowledgeBaseScreen = () => {
     <TouchableOpacity
       style={styles.articleCard}
       onPress={() =>
-        router.push({ pathname: '/article-detail', params: { articleId: item.id } })
+        router.push({
+          pathname: "/article-detail",
+          params: { articleId: item.id },
+        })
       }
     >
       <Text style={styles.articleTitle}>{item.title}</Text>
@@ -96,7 +99,7 @@ const KnowledgeBaseScreen = () => {
         {can.createArticle && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.push('/create-article')}
+            onPress={() => router.push("/create-article")}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

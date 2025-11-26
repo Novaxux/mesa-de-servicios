@@ -9,7 +9,7 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { userService } from "../../services/api";
 
@@ -109,7 +109,9 @@ const UsersScreen = () => {
   const renderUser = ({ item }) => (
     <TouchableOpacity
       style={styles.userCard}
-      onPress={() => router.push({ pathname: '/user-detail', params: { userId: item.id } })}
+      onPress={() =>
+        router.push({ pathname: "/user-detail", params: { userId: item.id } })
+      }
     >
       <View style={styles.userHeader}>
         <Text style={styles.userName}>
@@ -168,7 +170,7 @@ const UsersScreen = () => {
         {can.createUser && (
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.push('/create-user')}
+            onPress={() => router.push("/create-user")}
           >
             <Text style={styles.addButtonText}>+ Nuevo</Text>
           </TouchableOpacity>

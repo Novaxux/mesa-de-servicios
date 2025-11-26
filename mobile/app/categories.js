@@ -1,2 +1,2 @@
-import CategoriesScreen from '../screens/Admin/CategoriesScreen';
+import CategoriesScreen from "../screens/Admin/CategoriesScreen";
 export default CategoriesScreen;

@@ -1,2 +1,2 @@
-import DepartmentsScreen from '../screens/Admin/DepartmentsScreen';
+import DepartmentsScreen from "../screens/Admin/DepartmentsScreen";
 export default DepartmentsScreen;

@@ -1,2 +1,2 @@
-import TechnicianReportsScreen from '../screens/Admin/TechnicianReportsScreen';
+import TechnicianReportsScreen from "../screens/Admin/TechnicianReportsScreen";
 export default TechnicianReportsScreen;

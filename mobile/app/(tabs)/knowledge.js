@@ -1,2 +1,2 @@
-import KnowledgeBaseScreen from '../../screens/KnowledgeBase/KnowledgeBaseScreen';
+import KnowledgeBaseScreen from "../../screens/KnowledgeBase/KnowledgeBaseScreen";
 export default KnowledgeBaseScreen;

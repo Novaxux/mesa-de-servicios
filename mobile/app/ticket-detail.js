@@ -1,2 +1,2 @@
-import TicketDetailScreen from '../screens/Tickets/TicketDetailScreen';
+import TicketDetailScreen from "../screens/Tickets/TicketDetailScreen";
 export default TicketDetailScreen;

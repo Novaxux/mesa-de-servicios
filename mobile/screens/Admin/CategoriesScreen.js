@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -9,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { categoryService } from "../../services/api";
 
@@ -94,7 +95,7 @@ const CategoriesScreen = () => {
 
   const handleDelete = async (categoryId) => {
     console.log("handleDelete called with categoryId:", categoryId);
-    
+
     if (!can.deleteCategory) {
       Alert.alert("Error", "No tienes permisos para eliminar categorías");
       return;
@@ -111,7 +112,7 @@ const CategoriesScreen = () => {
       console.log("Calling categoryService.delete with id:", categoryId);
       const response = await categoryService.delete(categoryId);
       console.log("Delete response:", response);
-      
+
       if (response.success) {
         Alert.alert("Éxito", "Categoría eliminada correctamente");
         loadCategories();

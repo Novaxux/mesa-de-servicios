@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import { usePermissions } from "../../hooks/usePermissions";
 import { authService } from "../../services/api";

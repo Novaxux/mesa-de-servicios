@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { slaService } from "../../services/api";
 

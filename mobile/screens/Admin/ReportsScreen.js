@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { reportService, getAuthToken } from "../../services/api";
 
@@ -201,14 +201,14 @@ const ReportsScreen = () => {
 
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => router.push('/technician-reports')}
+            onPress={() => router.push("/technician-reports")}
           >
             <Text style={styles.reportButtonText}>📈 Reporte de Técnicos</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => router.push('/incident-reports')}
+            onPress={() => router.push("/incident-reports")}
           >
             <Text style={styles.reportButtonText}>
               🔍 Reporte de Incidentes
@@ -217,7 +217,7 @@ const ReportsScreen = () => {
 
           <TouchableOpacity
             style={styles.reportButton}
-            onPress={() => router.push('/feedback-reports')}
+            onPress={() => router.push("/feedback-reports")}
           >
             <Text style={styles.reportButtonText}>⭐ Reporte de Feedback</Text>
           </TouchableOpacity>

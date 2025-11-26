@@ -9,7 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { usePermissions } from "../../hooks/usePermissions";
 import { knowledgeBaseService, categoryService } from "../../services/api";
 import { Picker } from "@react-native-picker/picker";
@@ -113,7 +113,10 @@ const CreateArticleScreen = () => {
               text: "OK",
               onPress: () => {
                 // Navegar de vuelta y forzar recarga
-                router.push({ pathname: '/(tabs)/knowledge', params: { refresh: Date.now() } });
+                router.push({
+                  pathname: "/(tabs)/knowledge",
+                  params: { refresh: Date.now() },
+                });
               },
             },
           ]

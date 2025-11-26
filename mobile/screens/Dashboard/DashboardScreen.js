@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
 import { ticketService } from "../../services/api";
@@ -110,14 +110,17 @@ const DashboardScreen = () => {
             title="Total Tickets"
             value={statistics?.total}
             color="#2196F3"
-            onPress={() => router.push('/(tabs)/tickets')}
+            onPress={() => router.push("/(tabs)/tickets")}
           />
           <StatCard
             title="Abiertos"
             value={statistics?.open}
             color="#2196F3"
             onPress={() =>
-              router.push({ pathname: '/(tabs)/tickets', params: { filter: "open" } })
+              router.push({
+                pathname: "/(tabs)/tickets",
+                params: { filter: "open" },
+              })
             }
           />
         </View>
@@ -128,7 +131,10 @@ const DashboardScreen = () => {
             value={statistics?.in_progress}
             color="#FF9800"
             onPress={() =>
-              router.push({ pathname: '/(tabs)/tickets', params: { filter: "in_progress" } })
+              router.push({
+                pathname: "/(tabs)/tickets",
+                params: { filter: "in_progress" },
+              })
             }
           />
           <StatCard
@@ -136,7 +142,10 @@ const DashboardScreen = () => {
             value={statistics?.resolved}
             color="#4CAF50"
             onPress={() =>
-              router.push({ pathname: '/(tabs)/tickets', params: { filter: "resolved" } })
+              router.push({
+                pathname: "/(tabs)/tickets",
+                params: { filter: "resolved" },
+              })
             }
           />
         </View>
@@ -148,7 +157,7 @@ const DashboardScreen = () => {
         {can.createTicket && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/create-ticket')}
+            onPress={() => router.push("/create-ticket")}
           >
             <Text style={styles.actionButtonText}>➕ Crear Nuevo Ticket</Text>
           </TouchableOpacity>
@@ -157,7 +166,7 @@ const DashboardScreen = () => {
         {can.viewKnowledgeBase && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/(tabs)/knowledge')}
+            onPress={() => router.push("/(tabs)/knowledge")}
           >
             <Text style={styles.actionButtonText}>
               📚 Base de Conocimientos
@@ -169,7 +178,10 @@ const DashboardScreen = () => {
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() =>
-              router.push({ pathname: '/(tabs)/tickets', params: { filter: "assigned" } })
+              router.push({
+                pathname: "/(tabs)/tickets",
+                params: { filter: "assigned" },
+              })
             }
           >
             <Text style={styles.actionButtonText}>
@@ -181,7 +193,7 @@ const DashboardScreen = () => {
         {can.viewReports && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/(tabs)/reports')}
+            onPress={() => router.push("/(tabs)/reports")}
           >
             <Text style={styles.actionButtonText}>📊 Reportes</Text>
           </TouchableOpacity>
@@ -190,7 +202,7 @@ const DashboardScreen = () => {
         {can.manageTechnicians && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/technicians')}
+            onPress={() => router.push("/technicians")}
           >
             <Text style={styles.actionButtonText}>👥 Gestión de Técnicos</Text>
           </TouchableOpacity>
@@ -199,7 +211,7 @@ const DashboardScreen = () => {
         {can.manageUsers && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/users')}
+            onPress={() => router.push("/users")}
           >
             <Text style={styles.actionButtonText}>👤 Gestión de Usuarios</Text>
           </TouchableOpacity>
@@ -208,7 +220,7 @@ const DashboardScreen = () => {
         {can.manageCategories && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/categories')}
+            onPress={() => router.push("/categories")}
           >
             <Text style={styles.actionButtonText}>
               📁 Gestión de Categorías
@@ -219,7 +231,7 @@ const DashboardScreen = () => {
         {can.manageCategories && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/departments')}
+            onPress={() => router.push("/departments")}
           >
             <Text style={styles.actionButtonText}>
               🏢 Gestión de Departamentos
@@ -230,7 +242,7 @@ const DashboardScreen = () => {
         {can.manageSLA && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/sla-config')}
+            onPress={() => router.push("/sla-config")}
           >
             <Text style={styles.actionButtonText}>⚙️ Configuración SLA</Text>
           </TouchableOpacity>
@@ -239,7 +251,7 @@ const DashboardScreen = () => {
         {can.viewNotifications && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/notifications')}
+            onPress={() => router.push("/notifications")}
           >
             <Text style={styles.actionButtonText}>🔔 Notificaciones</Text>
           </TouchableOpacity>
