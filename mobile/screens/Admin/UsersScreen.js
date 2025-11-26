@@ -125,9 +125,9 @@ const UsersScreen = ({ navigation }) => {
 
       <Text style={styles.userEmail}>{item.email}</Text>
 
-      {item.department && (
-        <Text style={styles.userDepartment}>📁 {item.department}</Text>
-      )}
+      <Text style={styles.userDepartment}>
+        📁 {item.department_name || "Sin departamento asignado"}
+      </Text>
 
       <View style={styles.userFooter}>
         <Text

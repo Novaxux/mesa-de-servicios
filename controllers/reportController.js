@@ -239,11 +239,12 @@ class ReportController {
       // Por departamento
       const byDepartment = await query(
         `
-        SELECT t.department, COUNT(*) as count
+        SELECT d.name as department, COUNT(*) as count
         FROM tickets t
+        INNER JOIN users u ON t.created_by = u.id
+        LEFT JOIN departments d ON u.department_id = d.id
         WHERE DATE(t.created_at) BETWEEN ? AND ?
-        AND t.department IS NOT NULL
-        GROUP BY t.department
+        GROUP BY d.id, d.name
         ORDER BY count DESC
       `,
         [dateFrom, dateTo]
@@ -611,14 +612,16 @@ class ReportController {
         SELECT 
           c.name as category,
           it.name as incident_type,
-          t.department,
+          d.name as department,
           COUNT(*) as occurrence_count,
           AVG(TIMESTAMPDIFF(HOUR, t.created_at, t.resolution_time)) as avg_resolution_hours
         FROM tickets t
         LEFT JOIN categories c ON t.category_id = c.id
         LEFT JOIN incident_types it ON t.incident_type_id = it.id
+        INNER JOIN users u ON t.created_by = u.id
+        LEFT JOIN departments d ON u.department_id = d.id
         WHERE DATE(t.created_at) BETWEEN ? AND ?
-        GROUP BY c.name, it.name, t.department
+        GROUP BY c.name, it.name, d.id, d.name
         ORDER BY occurrence_count DESC
       `,
         [dateFrom, dateTo]

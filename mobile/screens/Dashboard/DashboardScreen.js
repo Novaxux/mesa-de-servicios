@@ -214,6 +214,17 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         )}
 
+        {can.manageCategories && (
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate("Departments")}
+          >
+            <Text style={styles.actionButtonText}>
+              🏢 Gestión de Departamentos
+            </Text>
+          </TouchableOpacity>
+        )}
+
         {can.manageSLA && (
           <TouchableOpacity
             style={styles.actionButton}

@@ -8,39 +8,59 @@ import {
   TouchableOpacity,
   Alert,
   Switch,
+  Modal,
 } from "react-native";
 import { usePermissions } from "../../hooks/usePermissions";
-import { userService } from "../../services/api";
+import { userService, departmentService } from "../../services/api";
 
 const UserDetailScreen = ({ navigation, route }) => {
   const { can } = usePermissions();
   const userId = route.params?.userId;
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [showDepartmentModal, setShowDepartmentModal] = useState(false);
 
   useEffect(() => {
-    if (!userId) {
-      Alert.alert("Error", "ID de usuario no válido");
-      navigation.goBack();
-      return;
-    }
-    loadUser();
+    const initScreen = async () => {
+      if (!userId) {
+        Alert.alert("Error", "ID de usuario no válido", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+        return;
+      }
+      await loadData();
+    };
+    initScreen();
   }, [userId]);
 
-  const loadUser = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const response = await userService.getById(userId);
-      if (response.success && response.data.user) {
-        setUser(response.data.user);
+      const [userResponse, deptResponse] = await Promise.all([
+        userService.getById(userId),
+        departmentService.getAll(),
+      ]);
+
+      if (userResponse?.success && userResponse.data?.user) {
+        setUser(userResponse.data.user);
       } else {
-        Alert.alert("Error", "No se pudo cargar el usuario");
-        navigation.goBack();
+        Alert.alert("Error", "No se pudo cargar el usuario", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+        return;
+      }
+
+      if (deptResponse?.success && deptResponse.data?.departments) {
+        setDepartments(deptResponse.data.departments);
+      } else {
+        setDepartments([]);
       }
     } catch (error) {
-      console.error("Error loading user:", error);
-      Alert.alert("Error", "No se pudo cargar el usuario");
-      navigation.goBack();
+      console.error("Error loading data:", error);
+      Alert.alert("Error", "No se pudo cargar la información", [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -67,6 +87,30 @@ const UserDetailScreen = ({ navigation, route }) => {
       }
     } catch (error) {
       Alert.alert("Error", "No se pudo actualizar el estado");
+    }
+  };
+
+  const handleChangeDepartment = async (departmentId) => {
+    if (!can.updateUser) {
+      Alert.alert("Error", "No tienes permisos para actualizar usuarios");
+      return;
+    }
+
+    try {
+      const response = await userService.update(userId, {
+        department_id: departmentId,
+      });
+
+      if (response.success) {
+        Alert.alert("Éxito", "Departamento actualizado correctamente");
+        setShowDepartmentModal(false);
+        loadData(); // Reload to get updated department name
+      }
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "No se pudo actualizar el departamento"
+      );
     }
   };
 
@@ -231,12 +275,22 @@ const UserDetailScreen = ({ navigation, route }) => {
           </View>
         )}
 
-        {user.department && (
-          <View style={styles.infoRow}>
+        <View style={styles.departmentRow}>
+          <View style={styles.departmentInfo}>
             <Text style={styles.infoLabel}>Departamento:</Text>
-            <Text style={styles.infoValue}>{user.department}</Text>
+            <Text style={styles.infoValue}>
+              {user.department_name || "Sin asignar"}
+            </Text>
           </View>
-        )}
+          {can.updateUser && (
+            <TouchableOpacity
+              style={styles.changeDepartmentButton}
+              onPress={() => setShowDepartmentModal(true)}
+            >
+              <Text style={styles.changeDepartmentText}>Cambiar</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Account Info */}
@@ -273,6 +327,62 @@ const UserDetailScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Modal de Selección de Departamento */}
+      <Modal
+        visible={showDepartmentModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDepartmentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Seleccionar Departamento</Text>
+
+            <ScrollView style={styles.departmentList}>
+              {Array.isArray(departments) && departments.length > 0 ? (
+                departments.map((dept) => (
+                  <TouchableOpacity
+                    key={dept.id}
+                    style={[
+                      styles.departmentOption,
+                      user.department_id === dept.id &&
+                        styles.selectedDepartment,
+                    ]}
+                    onPress={() => handleChangeDepartment(dept.id)}
+                  >
+                    <Text
+                      style={[
+                        styles.departmentOptionText,
+                        user.department_id === dept.id &&
+                          styles.selectedDepartmentText,
+                      ]}
+                    >
+                      {dept.name}
+                    </Text>
+                    {dept.description && (
+                      <Text style={styles.departmentOptionDescription}>
+                        {dept.description}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <Text style={styles.emptyText}>
+                  No hay departamentos disponibles
+                </Text>
+              )}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setShowDepartmentModal(false)}
+            >
+              <Text style={styles.modalCloseText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <View style={{ height: 20 }} />
     </ScrollView>
@@ -406,6 +516,97 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "#F44336",
+  },
+  departmentRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  departmentInfo: {
+    flex: 1,
+  },
+  changeDepartmentButton: {
+    backgroundColor: "#2196F3",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginLeft: 10,
+  },
+  changeDepartmentText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    width: "100%",
+    maxHeight: "80%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 15,
+  },
+  departmentList: {
+    maxHeight: 400,
+  },
+  departmentOption: {
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+    backgroundColor: "#f5f5f5",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  selectedDepartment: {
+    backgroundColor: "#E3F2FD",
+    borderWidth: 2,
+    borderColor: "#2196F3",
+  },
+  departmentOptionText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "600",
+    marginBottom: 5,
+  },
+  selectedDepartmentText: {
+    color: "#2196F3",
+  },
+  departmentOptionDescription: {
+    fontSize: 13,
+    color: "#666",
+  },
+  modalCloseButton: {
+    backgroundColor: "#f5f5f5",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 15,
+  },
+  modalCloseText: {
+    color: "#666",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#666",
+    fontSize: 16,
+    marginTop: 20,
+    padding: 20,
   },
 });
 

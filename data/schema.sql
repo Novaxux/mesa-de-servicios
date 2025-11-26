@@ -3,6 +3,19 @@
 CREATE DATABASE IF NOT EXISTS mesa_servicios CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE mesa_servicios;
 
+-- Tabla de departamentos
+CREATE TABLE IF NOT EXISTS departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    manager_id INT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_name (name),
+    INDEX idx_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Tabla de usuarios
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -12,15 +25,17 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(100) NOT NULL,
     role ENUM('admin', 'technician', 'user') NOT NULL DEFAULT 'user',
     phone VARCHAR(20),
-    department VARCHAR(100),
+    department_id INT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     biometric_enabled BOOLEAN DEFAULT FALSE,
     sso_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
     INDEX idx_email (email),
     INDEX idx_role (role),
-    INDEX idx_active (is_active)
+    INDEX idx_active (is_active),
+    INDEX idx_department (department_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de categorías de tickets
@@ -81,7 +96,6 @@ CREATE TABLE IF NOT EXISTS tickets (
     incident_type_id INT,
     created_by INT NOT NULL,
     assigned_to INT,
-    department VARCHAR(100),
     response_time TIMESTAMP NULL,
     resolution_time TIMESTAMP NULL,
     closed_at TIMESTAMP NULL,
@@ -264,6 +278,17 @@ CREATE TABLE IF NOT EXISTS response_templates (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insertar datos iniciales
+
+-- Departamentos por defecto
+INSERT INTO departments (name, description, is_active) VALUES
+('Tecnología de la Información', 'Departamento de TI y soporte técnico', TRUE),
+('Recursos Humanos', 'Gestión de personal y nómina', TRUE),
+('Finanzas', 'Contabilidad y gestión financiera', TRUE),
+('Operaciones', 'Operaciones y logística', TRUE),
+('Marketing', 'Marketing y comunicaciones', TRUE),
+('Ventas', 'Equipo comercial y ventas', TRUE),
+('Administración', 'Administración general', TRUE),
+('Sin Asignar', 'Usuarios sin departamento asignado', TRUE);
 
 -- Prioridades por defecto
 INSERT INTO priorities (name, level, response_time_hours, resolution_time_hours) VALUES

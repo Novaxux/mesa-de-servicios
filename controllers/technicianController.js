@@ -11,7 +11,7 @@ class TechnicianController {
         first_name,
         last_name,
         phone,
-        department,
+        department_id,
         specialty,
         schedule_start,
         schedule_end,
@@ -26,7 +26,7 @@ class TechnicianController {
         last_name,
         role: "technician",
         phone,
-        department,
+        department_id,
       });
 
       // Crear registro de técnico

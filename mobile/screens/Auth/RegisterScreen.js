@@ -21,7 +21,6 @@ const RegisterScreen = ({ navigation }) => {
     first_name: "",
     last_name: "",
     phone: "",
-    department: "",
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -126,16 +125,6 @@ const RegisterScreen = ({ navigation }) => {
               value={formData.phone}
               onChangeText={(value) => updateField("phone", value)}
               keyboardType="phone-pad"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Departamento</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="IT"
-              value={formData.department}
-              onChangeText={(value) => updateField("department", value)}
             />
           </View>
 

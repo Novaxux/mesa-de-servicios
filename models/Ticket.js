@@ -19,7 +19,6 @@ class Ticket {
       incident_type_id,
       created_by,
       assigned_to,
-      department,
     } = ticketData;
 
     // Obtener tiempos de SLA para la prioridad
@@ -41,8 +40,8 @@ class Ticket {
 
     const sql = `INSERT INTO tickets 
                  (ticket_number, title, description, priority_id, category_id, incident_type_id, 
-                  created_by, assigned_to, department, sla_response_deadline, sla_resolution_deadline) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                  created_by, assigned_to, sla_response_deadline, sla_resolution_deadline) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const result = await query(sql, [
       ticketNumber,
@@ -53,7 +52,6 @@ class Ticket {
       incident_type_id || null,
       created_by,
       assigned_to || null,
-      department || null,
       slaResponseDeadline,
       slaResolutionDeadline,
     ]);
@@ -127,9 +125,9 @@ class Ticket {
       params.push(filters.assigned_to);
     }
 
-    if (filters.department) {
-      sql += " AND t.department = ?";
-      params.push(filters.department);
+    if (filters.department_id) {
+      sql += " AND u1.department_id = ?";
+      params.push(filters.department_id);
     }
 
     if (filters.date_from) {

@@ -68,7 +68,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"usuario@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"role\": \"user\",\n  \"phone\": \"1234567890\",\n  \"department\": \"IT\"\n}"
+              "raw": "{\n  \"email\": \"usuario@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"role\": \"user\",\n  \"phone\": \"1234567890\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/auth/register",
@@ -110,7 +110,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"phone\": \"1234567890\",\n  \"department\": \"IT\"\n}"
+              "raw": "{\n  \"first_name\": \"Juan\",\n  \"last_name\": \"Pérez\",\n  \"phone\": \"1234567890\",\n  \"department_id\": 1\n}"
             },
             "url": {
               "raw": "{{base_url}}/auth/profile",
@@ -186,7 +186,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Problema con impresora\",\n  \"description\": \"La impresora no funciona correctamente\",\n  \"priority_id\": 2,\n  \"category_id\": 1,\n  \"incident_type_id\": 1,\n  \"department\": \"IT\"\n}"
+              "raw": "{\n  \"title\": \"Problema con impresora\",\n  \"description\": \"La impresora no funciona correctamente\",\n  \"priority_id\": 2,\n  \"category_id\": 1,\n  \"incident_type_id\": 1\n}"
             },
             "url": {
               "raw": "{{base_url}}/tickets",
@@ -401,7 +401,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"tecnico@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Carlos\",\n  \"last_name\": \"García\",\n  \"phone\": \"1234567890\",\n  \"department\": \"IT\",\n  \"specialty\": \"Hardware\",\n  \"schedule_start\": \"09:00:00\",\n  \"schedule_end\": \"18:00:00\",\n  \"max_tickets\": 10\n}"
+              "raw": "{\n  \"email\": \"tecnico@example.com\",\n  \"password\": \"password123\",\n  \"first_name\": \"Carlos\",\n  \"last_name\": \"García\",\n  \"phone\": \"1234567890\",\n  \"department_id\": 1,\n  \"specialty\": \"Hardware\",\n  \"schedule_start\": \"09:00:00\",\n  \"schedule_end\": \"18:00:00\",\n  \"max_tickets\": 10\n}"
             },
             "url": {
               "raw": "{{base_url}}/technicians",
@@ -1498,6 +1498,176 @@
                 {
                   "key": "id",
                   "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Departamentos",
+      "item": [
+        {
+          "name": "Listar Departamentos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments",
+              "host": ["{{base_url}}"],
+              "path": ["departments"]
+            }
+          }
+        },
+        {
+          "name": "Obtener Departamento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments/:id",
+              "host": ["{{base_url}}"],
+              "path": ["departments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear Departamento (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Departamento Legal\",\n  \"description\": \"Departamento de asuntos legales y cumplimiento\",\n  \"manager_id\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/departments",
+              "host": ["{{base_url}}"],
+              "path": ["departments"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Departamento (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Departamento Legal y Compliance\",\n  \"description\": \"Departamento de asuntos legales, cumplimiento y auditoría\",\n  \"manager_id\": 5,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/departments/:id",
+              "host": ["{{base_url}}"],
+              "path": ["departments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Departamento (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments/:id",
+              "host": ["{{base_url}}"],
+              "path": ["departments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Usuarios de Departamento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments/:id/users",
+              "host": ["{{base_url}}"],
+              "path": ["departments", ":id", "users"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Departamentos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/departments/search?q=tecnologia",
+              "host": ["{{base_url}}"],
+              "path": ["departments", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "tecnologia"
                 }
               ]
             }

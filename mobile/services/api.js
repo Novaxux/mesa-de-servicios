@@ -459,6 +459,44 @@ export const categoryService = {
   },
 };
 
+// Servicios de Departamentos
+export const departmentService = {
+  getAll: async () => {
+    const response = await api.get("/departments");
+    return response.data;
+  },
+
+  getById: async (id) => {
+    const response = await api.get(`/departments/${id}`);
+    return response.data;
+  },
+
+  create: async (departmentData) => {
+    const response = await api.post("/departments", departmentData);
+    return response.data;
+  },
+
+  update: async (id, departmentData) => {
+    const response = await api.put(`/departments/${id}`, departmentData);
+    return response.data;
+  },
+
+  delete: async (id) => {
+    const response = await api.delete(`/departments/${id}`);
+    return response.data;
+  },
+
+  getUsers: async (id) => {
+    const response = await api.get(`/departments/${id}/users`);
+    return response.data;
+  },
+
+  search: async (query) => {
+    const response = await api.get(`/departments/search?q=${query}`);
+    return response.data;
+  },
+};
+
 // Servicios de Usuarios
 export const userService = {
   getAll: async (filters = {}) => {

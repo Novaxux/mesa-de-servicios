@@ -16,7 +16,6 @@ class TicketController {
         incident_type_id: req.body.incident_type_id,
         created_by: req.user.id,
         assigned_to: req.body.assigned_to,
-        department: req.body.department || req.user.department,
       };
 
       // Asignación automática si está habilitada y no se especifica técnico
@@ -86,7 +85,7 @@ class TicketController {
         assigned_to:
           req.query.assigned_to ||
           (req.user.role === "technician" ? req.user.id : undefined),
-        department: req.query.department,
+        department_id: req.query.department_id,
         date_from: req.query.date_from,
         date_to: req.query.date_to,
         limit: req.query.limit,

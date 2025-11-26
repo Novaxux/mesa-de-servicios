@@ -36,6 +36,7 @@ import UserDetailScreen from "./screens/Admin/UserDetailScreen";
 import CreateUserScreen from "./screens/Admin/CreateUserScreen";
 import ReportsScreen from "./screens/Admin/ReportsScreen";
 import CategoriesScreen from "./screens/Admin/CategoriesScreen";
+import DepartmentsScreen from "./screens/Admin/DepartmentsScreen";
 import TechniciansScreen from "./screens/Admin/TechniciansScreen";
 import TechnicianDetailScreen from "./screens/Admin/TechnicianDetailScreen";
 import SLAConfigScreen from "./screens/Admin/SLAConfigScreen";
@@ -181,6 +182,11 @@ const MainStack = () => (
       name="Categories"
       component={CategoriesScreen}
       options={{ title: "Gestión de Categorías" }}
+    />
+    <Stack.Screen
+      name="Departments"
+      component={DepartmentsScreen}
+      options={{ title: "Gestión de Departamentos" }}
     />
     <Stack.Screen
       name="Technicians"

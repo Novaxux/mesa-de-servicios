@@ -22,11 +22,25 @@ async function initAdmin() {
       ]);
       console.log("✅ Contraseña de administrador actualizada");
     } else {
+      // Obtener ID del departamento "Administración" o "Sin Asignar"
+      const deptResult = await query(
+        "SELECT id FROM departments WHERE name IN ('Administración', 'Sin Asignar') ORDER BY name LIMIT 1"
+      );
+      const departmentId = deptResult.length > 0 ? deptResult[0].id : null;
+
       // Crear usuario administrador
       await query(
-        `INSERT INTO users (email, password, first_name, last_name, role, is_active) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [email, hashedPassword, "Administrador", "Sistema", "admin", true]
+        `INSERT INTO users (email, password, first_name, last_name, role, department_id, is_active) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          email,
+          hashedPassword,
+          "Administrador",
+          "Sistema",
+          "admin",
+          departmentId,
+          true,
+        ]
       );
       console.log("✅ Usuario administrador creado");
     }
