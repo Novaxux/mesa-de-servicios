@@ -54,9 +54,14 @@ class SLA {
   static async getSLACompliance(filters = {}) {
     let sql = `SELECT 
                COUNT(*) as total_tickets,
-               SUM(CASE WHEN sla_breached = 0 THEN 1 ELSE 0 END) as compliant,
-               SUM(CASE WHEN sla_breached = 1 THEN 1 ELSE 0 END) as breached,
-               (SUM(CASE WHEN sla_breached = 0 THEN 1 ELSE 0 END) / COUNT(*) * 100) as compliance_percentage
+               SUM(CASE WHEN sla_breached = 0 THEN 1 ELSE 0 END) as within_sla,
+               SUM(CASE WHEN sla_breached = 1 THEN 1 ELSE 0 END) as breached_sla,
+               ROUND((SUM(CASE WHEN sla_breached = 0 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100), 1) as within_sla_percentage,
+               ROUND((SUM(CASE WHEN sla_breached = 1 THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100), 1) as breached_sla_percentage,
+               ROUND(AVG(CASE WHEN response_time IS NOT NULL 
+                 THEN TIMESTAMPDIFF(HOUR, created_at, response_time) END), 1) as avg_response_hours,
+               ROUND(AVG(CASE WHEN resolution_time IS NOT NULL 
+                 THEN TIMESTAMPDIFF(HOUR, created_at, resolution_time) END), 1) as avg_resolution_hours
                FROM tickets WHERE 1=1`;
     const params = [];
 
@@ -71,7 +76,18 @@ class SLA {
     }
 
     const results = await query(sql, params);
-    return results[0] || {};
+    const data = results[0] || {};
+    
+    // Formatear tiempos promedio
+    return {
+      total_tickets: data.total_tickets || 0,
+      within_sla: data.within_sla || 0,
+      breached_sla: data.breached_sla || 0,
+      within_sla_percentage: data.within_sla_percentage || 0,
+      breached_sla_percentage: data.breached_sla_percentage || 0,
+      avg_response_time: data.avg_response_hours ? `${data.avg_response_hours} hrs` : 'N/A',
+      avg_resolution_time: data.avg_resolution_hours ? `${data.avg_resolution_hours} hrs` : 'N/A'
+    };
   }
 }
 

@@ -113,26 +113,12 @@ class ReportController {
         [dateFrom, dateTo]
       );
 
-      // Tiempos promedio
-      const avgTimes = await query(
-        `
-        SELECT 
-          AVG(TIMESTAMPDIFF(HOUR, created_at, response_time)) as avg_response_time,
-          AVG(TIMESTAMPDIFF(HOUR, created_at, resolution_time)) as avg_resolution_time
-        FROM tickets
-        WHERE DATE(created_at) BETWEEN ? AND ?
-        AND status IN ('resolved', 'closed')
-      `,
-        [dateFrom, dateTo]
-      );
-
       res.json({
         success: true,
         data: {
           period: { from: dateFrom, to: dateTo },
           compliance,
           byPriority,
-          avgTimes: avgTimes[0] || {},
         },
       });
     } catch (error) {
