@@ -19,13 +19,23 @@ class Technician {
 
   static async findById(id) {
     const sql = `SELECT t.*, u.email, u.first_name, u.last_name, u.phone, u.department_id,
-                 d.name as department_name
+                 d.name as department_name,
+                 (SELECT COUNT(*) FROM tickets WHERE assigned_to = t.user_id AND status NOT IN ('resolved', 'closed')) as assigned_tickets,
+                 (SELECT COUNT(*) FROM tickets WHERE assigned_to = t.user_id AND status IN ('resolved', 'closed')) as resolved_tickets,
+                 (SELECT ROUND(AVG(TIMESTAMPDIFF(HOUR, created_at, resolution_time)), 1) 
+                  FROM tickets WHERE assigned_to = t.user_id AND status IN ('resolved', 'closed') AND resolution_time IS NOT NULL) as avg_resolution_time,
+                 (SELECT ROUND(AVG(rating), 1) FROM feedback WHERE technician_id = t.user_id) as satisfaction_rating,
+                 (SELECT COUNT(*) FROM feedback WHERE technician_id = t.user_id) as total_ratings
                  FROM technicians t
                  LEFT JOIN users u ON t.user_id = u.id
                  LEFT JOIN departments d ON u.department_id = d.id
                  WHERE t.id = ?`;
     const results = await query(sql, [id]);
-    return results[0] || null;
+    const tech = results[0] || null;
+    if (tech && tech.schedule_start && tech.schedule_end) {
+      tech.schedule = `${tech.schedule_start} - ${tech.schedule_end}`;
+    }
+    return tech;
   }
 
   static async findByUserId(userId) {
@@ -42,7 +52,7 @@ class Technician {
   static async findAll(filters = {}) {
     let sql = `SELECT t.*, u.email, u.first_name, u.last_name, u.phone, u.department_id,
                d.name as department_name,
-               (SELECT COUNT(*) FROM tickets WHERE assigned_to = t.user_id AND status NOT IN ('resolved', 'closed')) as active_tickets
+               (SELECT COUNT(*) FROM tickets WHERE assigned_to = t.user_id AND status NOT IN ('resolved', 'closed')) as assigned_tickets
                FROM technicians t
                LEFT JOIN users u ON t.user_id = u.id
                LEFT JOIN departments d ON u.department_id = d.id
