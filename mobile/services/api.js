@@ -143,11 +143,23 @@ export const ticketService = {
 
   uploadAttachment: async (ticketId, file) => {
     const formData = new FormData();
-    formData.append("file", {
-      uri: file.uri,
-      type: file.type || "image/jpeg",
-      name: file.name || "attachment.jpg",
-    });
+    
+    // En React Native Web, necesitamos convertir el URI a un Blob
+    if (file.uri.startsWith('blob:') || file.uri.startsWith('http')) {
+      // Para web, fetch el blob y agregarlo como File
+      const response = await fetch(file.uri);
+      const blob = await response.blob();
+      const fileName = file.name || file.fileName || `attachment_${Date.now()}.jpg`;
+      formData.append("file", blob, fileName);
+    } else {
+      // Para React Native nativo
+      formData.append("file", {
+        uri: file.uri,
+        type: file.type || "image/jpeg",
+        name: file.name || "attachment.jpg",
+      });
+    }
+    
     formData.append("ticket_id", ticketId.toString());
 
     const response = await api.post(
@@ -159,6 +171,11 @@ export const ticketService = {
         },
       }
     );
+    return response.data;
+  },
+
+  deleteAttachment: async (attachmentId) => {
+    const response = await api.delete(`/tickets/attachments/${attachmentId}`);
     return response.data;
   },
 

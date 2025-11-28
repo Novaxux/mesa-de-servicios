@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
 import { usePermissions } from "../../hooks/usePermissions";
-import { ticketService } from "../../services/api";
+import { ticketService, getAuthToken } from "../../services/api";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -24,6 +24,7 @@ const TicketDetailScreen = () => {
   const { can, isAdmin, isTechnician } = usePermissions();
   const [ticket, setTicket] = useState(null);
   const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,6 +40,7 @@ const TicketDetailScreen = () => {
       if (response.success) {
         setTicket(response.data.ticket);
         setComments(response.data.comments || []);
+        setAttachments(response.data.attachments || []);
       }
     } catch (error) {
       Alert.alert("Error", "No se pudo cargar el ticket");
@@ -257,6 +259,49 @@ const TicketDetailScreen = () => {
           </View>
         )}
       </View>
+
+      {/* Sección de archivos adjuntos */}
+      {attachments.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            📎 Archivos Adjuntos ({attachments.length})
+          </Text>
+          {attachments.map((attachment) => (
+            <View key={attachment.id} style={styles.attachmentCard}>
+              <View style={styles.attachmentInfo}>
+                <Text style={styles.attachmentIcon}>
+                  {attachment.file_type?.includes("image")
+                    ? "🖼️"
+                    : attachment.file_type?.includes("pdf")
+                    ? "📄"
+                    : "📎"}
+                </Text>
+                <View style={styles.attachmentDetails}>
+                  <Text style={styles.attachmentName} numberOfLines={1}>
+                    {attachment.file_name}
+                  </Text>
+                  <Text style={styles.attachmentMeta}>
+                    {(attachment.file_size / 1024).toFixed(2)} KB • Subido por{" "}
+                    {attachment.first_name} {attachment.last_name}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.downloadButton}
+                onPress={() => {
+                  // Obtener el token y agregarlo a la URL
+                  const token = getAuthToken();
+                  const baseUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+                  const downloadUrl = `${baseUrl}/api/tickets/attachments/${attachment.id}/download?token=${encodeURIComponent(token)}`;
+                  window.open(downloadUrl, "_blank");
+                }}
+              >
+                <Text style={styles.downloadButtonText}>⬇️ Ver</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Comentarios ({comments.length})</Text>
@@ -641,6 +686,49 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: "#F44336",
+  },
+  attachmentCard: {
+    backgroundColor: "#f9f9f9",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  attachmentInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  attachmentIcon: {
+    fontSize: 24,
+    marginRight: 10,
+  },
+  attachmentDetails: {
+    flex: 1,
+  },
+  attachmentName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+  },
+  attachmentMeta: {
+    fontSize: 12,
+    color: "#999",
+  },
+  downloadButton: {
+    backgroundColor: "#2196F3",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginLeft: 10,
+  },
+  downloadButtonText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
 

@@ -93,6 +93,19 @@ const CreateTicketScreen = () => {
           category_id: ticket.category_id || null,
           department_id: ticket.department_id || user?.department_id || null,
         });
+
+        // Cargar archivos adjuntos existentes con formato especial para distinguirlos
+        if (response.data.attachments && response.data.attachments.length > 0) {
+          const existingAttachments = response.data.attachments.map((att) => ({
+            id: att.id,
+            name: att.file_name,
+            fileName: att.file_name,
+            existing: true, // Marca como existente
+            file_path: att.file_path,
+            file_size: att.file_size,
+          }));
+          setAttachments(existingAttachments);
+        }
       }
     } catch (error) {
       console.error("Error loading ticket:", error);
@@ -148,8 +161,26 @@ const CreateTicketScreen = () => {
     }
   };
 
-  const removeAttachment = (index) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  const removeAttachment = async (index) => {
+    const attachment = attachments[index];
+
+    // Si es un archivo existente, preguntar confirmación
+    if (attachment.existing) {
+      if (window.confirm("¿Estás seguro de eliminar este archivo?")) {
+        try {
+          // Llamar al backend para eliminar el archivo
+          await ticketService.deleteAttachment(attachment.id);
+          setAttachments((prev) => prev.filter((_, i) => i !== index));
+          alert("Archivo eliminado correctamente");
+        } catch (error) {
+          console.error("Error deleting attachment:", error);
+          alert("Error al eliminar el archivo");
+        }
+      }
+    } else {
+      // Si es un archivo nuevo (no subido aún), simplemente removerlo de la lista
+      setAttachments((prev) => prev.filter((_, i) => i !== index));
+    }
   };
 
   const handleSubmit = async () => {
@@ -169,9 +200,10 @@ const CreateTicketScreen = () => {
         const currentTicketId = isEditMode ? ticketId : result.data.ticket.id;
         let uploadErrors = [];
 
-        // Subir archivos adjuntos si hay (solo en modo creación)
-        if (attachments.length > 0 && !isEditMode) {
-          for (const attachment of attachments) {
+        // Subir archivos adjuntos nuevos (tanto en creación como en edición)
+        const newAttachments = attachments.filter((att) => !att.existing);
+        if (newAttachments.length > 0) {
+          for (const attachment of newAttachments) {
             try {
               const uri = attachment.uri;
               const fileExtension = uri ? uri.split(".").pop() : "jpg";
@@ -328,9 +360,19 @@ const CreateTicketScreen = () => {
             <View style={styles.attachmentsList}>
               {attachments.map((attachment, index) => (
                 <View key={index} style={styles.attachmentItem}>
-                  <Text style={styles.attachmentName} numberOfLines={1}>
-                    {attachment.name || attachment.fileName}
-                  </Text>
+                  <View style={styles.attachmentInfo}>
+                    {attachment.existing && (
+                      <Text style={styles.existingBadge}>📎 Existente</Text>
+                    )}
+                    <Text style={styles.attachmentName} numberOfLines={1}>
+                      {attachment.name || attachment.fileName}
+                    </Text>
+                    {attachment.file_size && (
+                      <Text style={styles.attachmentSize}>
+                        {(attachment.file_size / 1024).toFixed(2)} KB
+                      </Text>
+                    )}
+                  </View>
                   <TouchableOpacity
                     onPress={() => removeAttachment(index)}
                     style={styles.removeButton}
@@ -429,10 +471,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 5,
   },
-  attachmentName: {
+  attachmentInfo: {
     flex: 1,
+  },
+  existingBadge: {
+    fontSize: 10,
+    color: "#2196F3",
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  attachmentName: {
     fontSize: 14,
     color: "#333",
+    marginBottom: 2,
+  },
+  attachmentSize: {
+    fontSize: 12,
+    color: "#999",
   },
   removeButton: {
     padding: 5,
