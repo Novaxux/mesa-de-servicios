@@ -25,6 +25,7 @@ const TicketDetailScreen = () => {
   const [ticket, setTicket] = useState(null);
   const [comments, setComments] = useState([]);
   const [attachments, setAttachments] = useState([]);
+  const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -41,6 +42,7 @@ const TicketDetailScreen = () => {
         setTicket(response.data.ticket);
         setComments(response.data.comments || []);
         setAttachments(response.data.attachments || []);
+        setFeedback(response.data.feedback || null);
       }
     } catch (error) {
       Alert.alert("Error", "No se pudo cargar el ticket");
@@ -464,24 +466,56 @@ const TicketDetailScreen = () => {
           </TouchableOpacity>
         )}
 
+        {/* Mostrar feedback existente o botón para calificar */}
         {can.createFeedback &&
           (ticket.status === "resolved" || ticket.status === "closed") && (
-            <TouchableOpacity
-              style={styles.feedbackButton}
-              onPress={() =>
-                router.push({
-                  pathname: "/create-feedback",
-                  params: {
-                    ticketId: ticket.id,
-                    ticketNumber: ticket.ticket_number,
-                  },
-                })
-              }
-            >
-              <Text style={styles.feedbackButtonText}>
-                ⭐ Calificar Servicio
-              </Text>
-            </TouchableOpacity>
+            <>
+              {feedback ? (
+                <View style={styles.feedbackContainer}>
+                  <Text style={styles.feedbackTitle}>
+                    ✅ Servicio Calificado
+                  </Text>
+                  <View style={styles.starsContainer}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Text key={star} style={styles.starIcon}>
+                        {star <= feedback.rating ? "⭐" : "☆"}
+                      </Text>
+                    ))}
+                  </View>
+                  <Text style={styles.feedbackRating}>
+                    {feedback.rating}.0 de 5.0
+                  </Text>
+                  {feedback.comment && (
+                    <Text style={styles.feedbackComment}>
+                      "{feedback.comment}"
+                    </Text>
+                  )}
+                  <Text style={styles.feedbackDate}>
+                    Calificado el{" "}
+                    {format(new Date(feedback.created_at), "dd MMM yyyy", {
+                      locale: es,
+                    })}
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.feedbackButton}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/create-feedback",
+                      params: {
+                        ticketId: ticket.id,
+                        ticketNumber: ticket.ticket_number,
+                      },
+                    })
+                  }
+                >
+                  <Text style={styles.feedbackButtonText}>
+                    ⭐ Calificar Servicio
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </>
           )}
       </View>
     </ScrollView>
@@ -729,6 +763,46 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "600",
+  },
+  feedbackContainer: {
+    backgroundColor: "#E8F5E9",
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  feedbackTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2E7D32",
+    marginBottom: 10,
+  },
+  starsContainer: {
+    flexDirection: "row",
+    marginVertical: 10,
+  },
+  starIcon: {
+    fontSize: 24,
+    marginHorizontal: 2,
+  },
+  feedbackRating: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2E7D32",
+    marginBottom: 8,
+  },
+  feedbackComment: {
+    fontSize: 14,
+    color: "#555",
+    fontStyle: "italic",
+    textAlign: "center",
+    marginVertical: 10,
+    paddingHorizontal: 10,
+  },
+  feedbackDate: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 5,
   },
 });
 

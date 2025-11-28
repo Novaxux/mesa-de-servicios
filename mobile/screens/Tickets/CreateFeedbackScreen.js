@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
   Alert,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { feedbackService } from "../../services/api";
+import { feedbackService, getAuthToken } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
 const CreateFeedbackScreen = () => {
   const router = useRouter();
@@ -19,37 +20,77 @@ const CreateFeedbackScreen = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { user, token } = useAuth();
 
-  const handleSubmit = async () => {
+  useEffect(() => {
+    console.log("CreateFeedbackScreen: Ticket ID", ticketId);
+  }, []);
+
+  const handleSubmit = () => {
     if (rating === 0) {
-      window.alert("Por favor selecciona una calificación");
+      Alert.alert("Error", "Por favor selecciona una calificación");
       return;
     }
+    submitFeedback();
+  };
+  const submitFeedback = async () => {
+    console.log("=== INICIO submitFeedback ===");
+    console.log("ticketId:", ticketId);
+    console.log("rating:", rating);
+    console.log("comment:", comment);
 
-    if (window.confirm("¿Estás seguro de enviar esta calificación?")) {
-      setSubmitting(true);
-      try {
-        const result = await feedbackService.create({
-          ticket_id: ticketId,
-          rating: rating,
-          comment: comment.trim() || null,
+    setSubmitting(true);
+    try {
+      const feedbackData = {
+        ticket_id: parseInt(ticketId),
+        rating: rating,
+        comment: comment.trim() || null,
+      };
+
+      console.log("Datos a enviar:", feedbackData);
+      console.log("Llamando a feedbackService.create...");
+
+      const result = await feedbackService.create(feedbackData);
+
+      console.log("Respuesta recibida:", result);
+
+      if (result.success) {
+        console.log("Feedback creado exitosamente");
+        router.replace({
+          pathname: "/ticket-detail",
+          params: { ticketId },
         });
 
-        if (result.success) {
-          window.alert("¡Gracias por tu feedback!");
-          router.back();
-        } else {
-          window.alert(result.message || "Error al enviar feedback");
-        }
-      } catch (error) {
-        console.error("Feedback error:", error);
-        const errorMessage =
-          error.response?.data?.message ||
-          "Error de conexión. Intenta nuevamente.";
-        window.alert(errorMessage);
-      } finally {
-        setSubmitting(false);
+        setTimeout(() => {
+          Alert.alert("Éxito", "¡Gracias por tu feedback!");
+        }, 300);
+      } else {
+        console.error("Error en respuesta:", result.message);
+        Alert.alert("Error", result.message || "Error al enviar feedback");
       }
+    } catch (error) {
+      console.error("=== ERROR EN FEEDBACK ===");
+      console.error("Error completo:", error);
+      console.error("Error response:", error.response);
+      console.error("Error request:", error.request);
+      console.error("Error config:", error.config);
+
+      let errorMessage = "Error de conexión. Intenta nuevamente.";
+
+      if (error.response) {
+        errorMessage = error.response.data?.message || "Error en el servidor";
+        console.error("Error del servidor:", errorMessage);
+      } else if (error.request) {
+        errorMessage = "Sin respuesta del servidor";
+        console.error("Sin respuesta del servidor");
+      } else {
+        console.error("Error de configuración:", error.message);
+      }
+
+      Alert.alert("Error", errorMessage);
+    } finally {
+      console.log("=== FIN submitFeedback ===");
+      setSubmitting(false);
     }
   };
 
@@ -154,7 +195,7 @@ const CreateFeedbackScreen = () => {
 
       <TouchableOpacity
         style={styles.cancelButton}
-        onPress={() => navigation.goBack()}
+        onPress={() => router.back()}
         disabled={submitting}
       >
         <Text style={styles.cancelButtonText}>Cancelar</Text>

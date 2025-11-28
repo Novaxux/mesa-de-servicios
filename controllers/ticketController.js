@@ -182,6 +182,21 @@ class TicketController {
       // Obtener historial
       const history = await Ticket.getHistory(req.params.id);
 
+      // Obtener feedback si existe
+      let feedback = null;
+      const feedbackResult = await query(
+        `SELECT f.*, u.first_name, u.last_name 
+         FROM feedback f
+         LEFT JOIN users u ON f.user_id = u.id
+         WHERE f.ticket_id = ?
+         ORDER BY f.created_at DESC
+         LIMIT 1`,
+        [req.params.id]
+      );
+      if (feedbackResult && feedbackResult.length > 0) {
+        feedback = feedbackResult[0];
+      }
+
       res.json({
         success: true,
         data: {
@@ -189,6 +204,7 @@ class TicketController {
           comments,
           attachments,
           history,
+          feedback,
         },
       });
     } catch (error) {
