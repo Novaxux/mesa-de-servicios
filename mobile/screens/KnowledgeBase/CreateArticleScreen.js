@@ -103,24 +103,16 @@ const CreateArticleScreen = () => {
       }
 
       if (response.success) {
-        Alert.alert(
-          "Éxito",
-          articleId
-            ? "Artículo actualizado correctamente"
-            : "Artículo creado correctamente",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                // Navegar de vuelta y forzar recarga
-                router.push({
-                  pathname: "/(tabs)/knowledge",
-                  params: { refresh: Date.now() },
-                });
-              },
-            },
-          ]
-        );
+        router.replace("/(tabs)/knowledge");
+
+        setTimeout(() => {
+          Alert.alert(
+            "Éxito",
+            articleId
+              ? "Artículo actualizado correctamente"
+              : "Artículo creado correctamente"
+          );
+        }, 300);
       } else {
         Alert.alert(
           "Error",
