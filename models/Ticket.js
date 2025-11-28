@@ -151,7 +151,9 @@ class Ticket {
       params.push(filters.created_by);
     }
 
-    if (filters.assigned_to && !filters.user_role) {
+    // Filtro por técnico asignado - funciona para todos los roles
+    // Solo se excluye si es user_role === 'user' (usuarios ven solo sus tickets creados)
+    if (filters.assigned_to && filters.user_role !== "user") {
       sql += " AND t.assigned_to = ?";
       params.push(filters.assigned_to);
     }

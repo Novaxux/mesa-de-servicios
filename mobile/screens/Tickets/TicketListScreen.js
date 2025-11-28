@@ -61,16 +61,23 @@ const TicketListScreen = () => {
       if (filters.sla_breached !== null)
         queryFilters.sla_breached = filters.sla_breached ? 1 : 0;
 
-      // Admin puede ver todos los tickets
+      // Si viene desde dashboard del técnico con filtro "assigned"
+      if (isTechnician && params?.filter === "assigned") {
+        queryFilters.assigned_to = user?.id;
+      }
+
+      // Admin puede ver todos los tickets (sin filtros adicionales)
       if (can.viewAllTickets) {
         // No se necesita filtro adicional
       }
-      // Técnicos ven tickets asignados a ellos
-      else if (can.viewAssignedTickets && filters.status === "assigned") {
-        queryFilters.assigned_to = user?.id;
+      // Técnicos ven tickets de su categoría (el backend filtra por specialty)
+      // A menos que tengan filtro assigned_to activo
+      else if (isTechnician) {
+        // El backend ya maneja el filtro por specialty automáticamente
+        // No agregamos filtros adicionales aquí
       }
-      // Usuarios normales solo ven sus propios tickets
-      else if (can.viewOwnTickets && !can.viewAllTickets) {
+      // Usuarios normales solo ven sus propios tickets creados
+      else if (can.viewOwnTickets) {
         queryFilters.created_by = user?.id;
       }
 
@@ -166,7 +173,12 @@ const TicketListScreen = () => {
   };
 
   const getActiveFiltersCount = () => {
-    return Object.values(filters).filter((v) => v !== null).length;
+    let count = Object.values(filters).filter((v) => v !== null).length;
+    // Agregar 1 si viene desde dashboard con filtro "assigned"
+    if (isTechnician && params?.filter === "assigned") {
+      count += 1;
+    }
+    return count;
   };
 
   const filterTicketsBySearch = () => {
@@ -301,8 +313,10 @@ const TicketListScreen = () => {
         <Text style={styles.headerTitle}>
           {isAdmin
             ? "Todos los Tickets"
-            : isTechnician && filters.status === null
+            : isTechnician && params?.filter === "assigned"
             ? "Tickets Asignados"
+            : isTechnician
+            ? "Tickets Disponibles"
             : "Mis Tickets"}
         </Text>
         {can.createTicket && (
@@ -369,23 +383,30 @@ const TicketListScreen = () => {
               </TouchableOpacity>
             </View>
           )}
-          {filters.assigned_to && (
+          {(filters.assigned_to ||
+            (isTechnician && params?.filter === "assigned")) && (
             <View style={styles.activeFilterChip}>
               <Text style={styles.activeFilterText}>
-                Técnico:{" "}
-                {
-                  technicians.find((t) => t.user_id === filters.assigned_to)
-                    ?.first_name
-                }
+                {isTechnician && params?.filter === "assigned"
+                  ? "👤 Mis Asignados"
+                  : `Técnico: ${
+                      technicians.find((t) => t.user_id === filters.assigned_to)
+                        ?.first_name || "..."
+                    }`}
               </Text>
               <TouchableOpacity
-                onPress={() => setFilters({ ...filters, assigned_to: null })}
+                onPress={() => {
+                  setFilters({ ...filters, assigned_to: null });
+                  if (params?.filter === "assigned") {
+                    router.replace("/(tabs)/tickets");
+                  }
+                }}
               >
                 <Text style={styles.activeFilterRemove}>✕</Text>
               </TouchableOpacity>
             </View>
           )}
-          {filters.category_id && (
+          {filters.category_id && !isTechnician && (
             <View style={styles.activeFilterChip}>
               <Text style={styles.activeFilterText}>
                 {categories.find((c) => c.id === filters.category_id)?.name}
@@ -640,54 +661,56 @@ const TicketListScreen = () => {
                 </View>
               )}
 
-              {/* Categoría */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Categoría:</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <TouchableOpacity
-                    style={[
-                      styles.filterChip,
-                      filters.category_id === null && styles.filterChipActive,
-                    ]}
-                    onPress={() =>
-                      setFilters({ ...filters, category_id: null })
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.filterChipText,
-                        filters.category_id === null &&
-                          styles.filterChipTextActive,
-                      ]}
-                    >
-                      Todas
-                    </Text>
-                  </TouchableOpacity>
-                  {categories.map((cat) => (
+              {/* Categoría - Solo para Admin y Usuarios */}
+              {!isTechnician && (
+                <View style={styles.filterSection}>
+                  <Text style={styles.filterLabel}>Categoría:</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <TouchableOpacity
-                      key={cat.id}
                       style={[
                         styles.filterChip,
-                        filters.category_id === cat.id &&
-                          styles.filterChipActive,
+                        filters.category_id === null && styles.filterChipActive,
                       ]}
                       onPress={() =>
-                        setFilters({ ...filters, category_id: cat.id })
+                        setFilters({ ...filters, category_id: null })
                       }
                     >
                       <Text
                         style={[
                           styles.filterChipText,
-                          filters.category_id === cat.id &&
+                          filters.category_id === null &&
                             styles.filterChipTextActive,
                         ]}
                       >
-                        {cat.name}
+                        Todas
                       </Text>
                     </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
+                    {categories.map((cat) => (
+                      <TouchableOpacity
+                        key={cat.id}
+                        style={[
+                          styles.filterChip,
+                          filters.category_id === cat.id &&
+                            styles.filterChipActive,
+                        ]}
+                        onPress={() =>
+                          setFilters({ ...filters, category_id: cat.id })
+                        }
+                      >
+                        <Text
+                          style={[
+                            styles.filterChipText,
+                            filters.category_id === cat.id &&
+                              styles.filterChipTextActive,
+                          ]}
+                        >
+                          {cat.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
 
               {/* Tipo de Incidente */}
               <View style={styles.filterSection}>
